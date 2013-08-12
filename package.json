@@ -1,0 +1,39 @@
+{
+  "name": "node-etcd",
+  "version": "0.1.2",
+  "description": "etcd library for node.js",
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "http://www.opensource.org/licenses/bsd-license.php"
+    }
+  ],
+  "maintainers": [
+    {
+      "name": "Stian Eikeland",
+      "email": "stian@eikeland.se",
+      "web": "http://eikeland.se/"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/stianeikeland/node-etcd.git"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "coffee --bare --compile --output lib/ src/*.coffee",
+    "prepublish": "coffee --bare --compile --output lib/ src/*.coffee",
+    "postpublish": "rm -rf lib"
+  },
+  "dependencies": {
+    "underscore": "*",
+    "request": "*"
+  },
+  "devDependencies": {
+    "coffee-script": "*"
+  },
+  "keywords": ["etcd"]
+}
