@@ -43,6 +43,10 @@ c.watch "/key3", (err, val) ->
 c.set "/key3", "value3", (err, val) ->
 	console.log err, val
 
+# Watch a key from a specific index
+c.watchIndex "/key3", 5, (err, val) ->
+	console.log err, val
+
 
 ## Directory listing
 
@@ -66,4 +70,5 @@ c.machines (err, val) ->
 # Get the leader of the cluster
 c.leader (err, val) ->
 	console.log err, val
+
 

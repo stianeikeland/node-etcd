@@ -45,9 +45,25 @@ class Etcd
 		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key)
 		request.del opt, @_reponseHandler callback
 
+	# Watch for value changes on a key
 	watch: (key, callback) ->
 		opt = @_prepareOpts "watch/" + @_stripSlashPrefix(key)
 		request.get opt, @_reponseHandler callback
+
+	# Watch for value changes on a key since a specific index
+	watchIndex: (key, index, callback) ->
+		@watchCustom key, {index: index}, callback
+
+	# Watch with custom options
+	watchCustom: (key, opts, callback) ->
+		opt = @_prepareOpts "watch/" + @_stripSlashPrefix(key)
+
+		_.extend opt, {
+			form: opts
+		} if opts?
+
+		request.post opt, @_reponseHandler callback
+
 
 	# Get the etcd cluster machines
 	machines: (callback) ->
