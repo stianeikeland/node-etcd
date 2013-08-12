@@ -3,7 +3,7 @@ _       = require 'underscore'
 
 class Etcd
 
-	# Cunstructor, set etcd host and port
+	# Constructor, set etcd host and port
 	constructor: (@host = '127.0.0.1', @port = '4001') ->
 
 	# Get value for given key
@@ -79,12 +79,14 @@ class Etcd
 	_stripSlashPrefix: (key) ->
 		key.replace /^\//, ''
 
+	# Prepare request options
 	_prepareOpts: (url, apiVersion = "/v1") ->
 		opt = {
 			url: "http://#{@host}:#{@port}#{apiVersion}/#{url}"
 			json: true
 		}
 
+	# Response handler for request
 	_responseHandler: (callback) ->
 		(err, resp, body) ->
 			if body? and body.errorCode?
