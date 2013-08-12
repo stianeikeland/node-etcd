@@ -28,19 +28,19 @@ class EtcdClient
 	set: (key, value, callback) ->
 		@setWithOpts key, value, {}, callback
 
-    # Set key to value with time to live
+	# Set key to value with time to live
 	setTTL: (key, value, ttl, callback) ->
 		@setWithOpts key, value, {ttl: ttl}, callback
 
-    # Atomic test and set value
+	# Atomic test and set value
 	setTest: (key, value, prevValue, callback) ->
 		@setWithOpts key, value, {prevValue: prevValue}, callback
 
-    # Atomic test and set value with ttl
+	# Atomic test and set value with ttl
 	setTestTTL: (key, value, prevValue, ttl, callback) ->
 		@setWithOpts key, value, {prevValue: prevValue, ttl: ttl}, callback
 
-    # Set key to value with exta options (ttl, prevValue, etc)
+	# Set key to value with exta options (ttl, prevValue, etc)
 	setWithOpts: (key, value, extraopts, callback) ->
 		opt = @prepareOpts "keys" + key
 
