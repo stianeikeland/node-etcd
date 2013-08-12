@@ -35,6 +35,15 @@ c.setTest "/key", "value2", "value", (err, val) ->
 	console.log err, val
 
 
+## Watch key
+
+c.watch "/key3", (err, val) ->
+	console.log err, val
+
+c.set "/key3", "value3", (err, val) ->
+	console.log err, val
+
+
 ## Directory listing
 
 # Set two keys with path
@@ -46,3 +55,15 @@ c.set "/dir/key2", "value2", (err, val) ->
 # List a key path
 c.get "/dir/", (err, val) ->
 	console.log err, val
+
+
+## Other
+
+# List machines in the etcd cluster
+c.machines (err, val) ->
+	console.log err, val
+
+# Get the leader of the cluster
+c.leader (err, val) ->
+	console.log err, val
+

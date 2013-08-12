@@ -8,8 +8,8 @@ class Etcd
 
 	# Get value for given key
 	get: (key, callback) ->
-		opt = @_prepareOpts "keys" + @_fixSlashPrefix(key)
-		request opt, @_reponseHandler callback
+		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key)
+		request.get opt, @_reponseHandler callback
 
 	# Set key to value
 	set: (key, value, callback) ->
@@ -29,7 +29,7 @@ class Etcd
 
 	# Set key to value with exta options (ttl, prevValue, etc)
 	setCustom: (key, value, extraopts, callback) ->
-		opt = @_prepareOpts "keys" + @_fixSlashPrefix(key)
+		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key)
 
 		_.extend opt, {
 			form: { value: value }
@@ -42,21 +42,36 @@ class Etcd
 
 	# Delete given key
 	del: (key, callback) ->
-		opt = @_prepareOpts "keys" + @_fixSlashPrefix(key)
+		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key)
 		request.del opt, @_reponseHandler callback
 
-	_fixSlashPrefix: (key) ->
-		key.replace("^/", "")
+	watch: (key, callback) ->
+		opt = @_prepareOpts "watch/" + @_stripSlashPrefix(key)
+		request.get opt, @_reponseHandler callback
 
-	_prepareOpts: (url) ->
+	# Get the etcd cluster machines
+	machines: (callback) ->
+		opt = @_prepareOpts "keys/_etcd/machines"
+		request.get opt, @_reponseHandler callback
+
+	# Get the current cluster leader
+	leader: (callback) ->
+		opt = @_prepareOpts "leader", ""
+		request.get opt, @_reponseHandler callback
+
+	# Strip the prefix slash if set
+	_stripSlashPrefix: (key) ->
+		key.replace /^\//, ''
+
+	_prepareOpts: (url, apiVersion = "/v1") ->
 		opt = {
-			url: "http://#{@host}:#{@port}/v1/#{url}"
+			url: "http://#{@host}:#{@port}#{apiVersion}/#{url}"
 			json: true
 		}
 
 	_reponseHandler: (callback) ->
 		(err, resp, body) ->
-			if body.errorCode?
+			if body? and body.errorCode?
 				callback body, ""
 			else
 				callback err, body
