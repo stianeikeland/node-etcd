@@ -26,14 +26,18 @@
   "scripts": {
     "build": "coffee --bare --compile --output lib/ src/*.coffee",
     "prepublish": "coffee --bare --compile --output lib/ src/*.coffee",
-    "postpublish": "rm -rf lib"
+    "postpublish": "rm -rf lib",
+    "test": "node_modules/mocha/bin/mocha --compilers coffee:coffee-script"
   },
   "dependencies": {
     "underscore": "*",
     "request": "*"
   },
   "devDependencies": {
-    "coffee-script": "*"
+    "coffee-script": "*",
+    "mocha": "*",
+    "should": "*",
+    "nock": "*"
   },
   "keywords": ["etcd"]
 }
