@@ -4,7 +4,13 @@ A nodejs library for [etcd](http://github.com/coreos/etcd), written in coffee-sc
 
 Travis-CI: [![Build Status](https://travis-ci.org/stianeikeland/node-etcd.png)](https://travis-ci.org/stianeikeland/node-etcd)
 
-## Example
+## Install
+
+```
+$ npm install node-etcd
+```
+
+## Usage
 
 ```coffeescript
 # Coffee-script examples:
