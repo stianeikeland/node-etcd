@@ -1,21 +1,48 @@
-EtcdClient = require './src/index.coffee'
+Etcd = require './src/index.coffee'
 
-c = new EtcdClient
+c = new Etcd
 
+## Basic operations
+
+# Set a value
+c.set "/key", "value", (err, val) ->
+	console.log err, val
+
+# Get a value
+c.get "/key", (err, val) ->
+	console.log err, val
+
+# Delete a value
 c.del "/key", (err, val) ->
 	console.log err, val
+
+# Set with expiry (time to live)
+c.setTTL "/key", "value", 5, (err, val) ->
+	console.log err, val
+
+
+## Atomic setting (test and set)
 
 c.set "/key", "value", (err, val) ->
 	console.log err, val
 
+# Setting key to value2 if value is value, success
 c.setTest "/key", "value2", "value", (err, val) ->
 	console.log err, val
 
+# Setting key to value2 if value is value, failure
 c.setTest "/key", "value2", "value", (err, val) ->
 	console.log err, val
 
-c.setTTL "/key", "value", 5, (err, val) ->
+
+## Directory listing
+
+# Set two keys with path
+c.set "/dir/key1", "value1", (err, val) ->
+	console.log err, val
+c.set "/dir/key2", "value2", (err, val) ->
 	console.log err, val
 
-c.get "/key", (err, val) ->
+# List a key path
+c.get "/dir/", (err, val) ->
 	console.log err, val

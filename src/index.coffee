@@ -1,48 +1,35 @@
 request = require 'request'
 _       = require 'underscore'
 
-class EtcdClient
+class Etcd
 
-	# etcd host and port
+	# Cunstructor, set etcd host and port
 	constructor: (@host = '127.0.0.1', @port = '4001') ->
 
-	prepareOpts: (url) ->
-		opt = {
-			url: "http://#{@host}:#{@port}/v1/#{url}"
-			json: true
-		}
-
-	reponseHandler: (callback) ->
-		return (err, resp, body) ->
-			if body.errorCode?
-				callback body, ""
-			else
-				callback err, body
-
-	# Get key
+	# Get value for given key
 	get: (key, callback) ->
-		opt = @prepareOpts "keys" + key
-		request opt, @reponseHandler callback
+		opt = @_prepareOpts "keys" + @_fixSlashPrefix(key)
+		request opt, @_reponseHandler callback
 
 	# Set key to value
 	set: (key, value, callback) ->
-		@setWithOpts key, value, {}, callback
+		@setCustom key, value, {}, callback
 
-	# Set key to value with time to live
+	# Set key to value with expirey
 	setTTL: (key, value, ttl, callback) ->
-		@setWithOpts key, value, {ttl: ttl}, callback
+		@setCustom key, value, {ttl: ttl}, callback
 
 	# Atomic test and set value
 	setTest: (key, value, prevValue, callback) ->
-		@setWithOpts key, value, {prevValue: prevValue}, callback
+		@setCustom key, value, {prevValue: prevValue}, callback
 
 	# Atomic test and set value with ttl
 	setTestTTL: (key, value, prevValue, ttl, callback) ->
-		@setWithOpts key, value, {prevValue: prevValue, ttl: ttl}, callback
+		@setCustom key, value, {prevValue: prevValue, ttl: ttl}, callback
 
 	# Set key to value with exta options (ttl, prevValue, etc)
-	setWithOpts: (key, value, extraopts, callback) ->
-		opt = @prepareOpts "keys" + key
+	setCustom: (key, value, extraopts, callback) ->
+		opt = @_prepareOpts "keys" + @_fixSlashPrefix(key)
 
 		_.extend opt, {
 			form: { value: value }
@@ -51,12 +38,28 @@ class EtcdClient
 		if extraopts?
 			_.extend opt.form, extraopts
 
-		request.post opt, @reponseHandler callback
+		request.post opt, @_reponseHandler callback
 
 	# Delete given key
 	del: (key, callback) ->
-		opt = @prepareOpts "keys" + key
-		request.del opt, @reponseHandler callback
+		opt = @_prepareOpts "keys" + @_fixSlashPrefix(key)
+		request.del opt, @_reponseHandler callback
+
+	_fixSlashPrefix: (key) ->
+		key.replace("^/", "")
+
+	_prepareOpts: (url) ->
+		opt = {
+			url: "http://#{@host}:#{@port}/v1/#{url}"
+			json: true
+		}
+
+	_reponseHandler: (callback) ->
+		(err, resp, body) ->
+			if body.errorCode?
+				callback body, ""
+			else
+				callback err, body
 
 
-exports = module.exports = EtcdClient
+exports = module.exports = Etcd
