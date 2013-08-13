@@ -86,4 +86,11 @@ describe 'Basic functions', () ->
 			getNock().get('/leader').reply(200, '{"value":"value"}')
 			etcd.leader checkVal done
 
+	describe '#version()', () ->
+		it 'should ask etcd for version', (done) ->
+			getNock().get('/').reply(200, 'etcd v0.1.0-8-gaad1626')
+			etcd.version (err, val) ->
+				val.should.equal 'etcd v0.1.0-8-gaad1626'
+				done err, val
+
 

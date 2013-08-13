@@ -75,6 +75,11 @@ class Etcd
 		opt = @_prepareOpts "leader", ""
 		request.get opt, @_responseHandler callback
 
+	# Get version of etcd
+	version: (callback) ->
+		opt = @_prepareOpts "", ""
+		request.get opt, @_responseHandler callback
+
 	# Strip the prefix slash if set
 	_stripSlashPrefix: (key) ->
 		key.replace /^\//, ''
