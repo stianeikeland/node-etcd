@@ -31,9 +31,16 @@ c.get "/key", (err, val) ->
 c.del "/key", (err, val) ->
 	console.log err, val
 
-# Watch a value
+# Watch a value (wait for a single value change)
 c.watch "/key", (err, val) ->
 	console.log err, val
+
+# Watcher retuns an eventemitter for continuously watching changes,
+# it also handles reconnect on error, etc..
+w = c.watcher '/key'
+
+w.on 'change', console.log
+w.on 'reconnect', console.log
 
 # Set with expiry (time to live)
 c.setTTL "/key", "value", 5, (err, val) ->
