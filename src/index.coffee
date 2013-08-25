@@ -1,5 +1,6 @@
 request = require 'request'
 _       = require 'underscore'
+Watcher = require './watcher'
 
 class Etcd
 
@@ -64,6 +65,10 @@ class Etcd
 
 		request.post opt, @_responseHandler callback
 
+	# Returns an eventemitter that watches a key, emits 'change' on value change
+	# or 'reconnect' when trying to recover from errors.
+	watcher: (key, index = null) =>
+		return new Watcher this, key, index
 
 	# Get the etcd cluster machines
 	machines: (callback) ->
