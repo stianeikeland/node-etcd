@@ -4,7 +4,7 @@ A nodejs library for [etcd](http://github.com/coreos/etcd), written in coffee-sc
 
 [![NPM](https://nodei.co/npm/node-etcd.png)](https://nodei.co/npm/node-etcd/)
 
-Travis-CI: [![Build Status](https://travis-ci.org/stianeikeland/node-etcd.png)](https://travis-ci.org/stianeikeland/node-etcd)
+Travis-CI: [![Build Status](https://travis-ci.org/stianeikeland/node-etcd.png?branch=master)](https://travis-ci.org/stianeikeland/node-etcd)
 
 ## Install
 
