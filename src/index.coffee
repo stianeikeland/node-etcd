@@ -92,7 +92,7 @@ class Etcd
 		key.replace /^\//, ''
 
 	# Prepare request options
-	_prepareOpts: (url, apiVersion = "/v1") ->
+	_prepareOpts: (path, apiVersion = "/v1") ->
 		protocol = "http"
 
 		# Set up HttpsAgent if sslopts {ca, key, cert} are given
@@ -102,7 +102,7 @@ class Etcd
 			_.extend httpsagent.options, @sslopts
 
 		opt = {
-			url: "#{protocol}://#{@host}:#{@port}#{apiVersion}/#{url}"
+			url: "#{protocol}://#{@host}:#{@port}#{apiVersion}/#{path}"
 			json: true
 			agent: httpsagent if httpsagent?
 		}
