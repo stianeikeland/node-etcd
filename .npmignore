@@ -1,4 +1,5 @@
-src/
 node_modules/
-test/
 npm-debug.log
+.DS_Store
+.gitignore
+.travis.yml
