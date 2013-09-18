@@ -1,11 +1,13 @@
 request = require 'request'
 _       = require 'underscore'
 Watcher = require './watcher'
+HttpsAgent = (require 'https').Agent
 
 class Etcd
 
-	# Constructor, set etcd host and port
-	constructor: (@host = '127.0.0.1', @port = '4001') ->
+	# Constructor, set etcd host and port.
+	# For https: provide {ca, crt, key} as sslopts.
+	constructor: (@host = '127.0.0.1', @port = '4001', @sslopts = null) ->
 
 	# Get value for given key
 	get: (key, callback) ->
@@ -90,10 +92,19 @@ class Etcd
 		key.replace /^\//, ''
 
 	# Prepare request options
-	_prepareOpts: (url, apiVersion = "/v1") ->
+	_prepareOpts: (path, apiVersion = "/v1") ->
+		protocol = "http"
+
+		# Set up HttpsAgent if sslopts {ca, key, cert} are given
+		if @sslopts?
+			protocol = "https"
+			httpsagent = new HttpsAgent
+			_.extend httpsagent.options, @sslopts
+
 		opt = {
-			url: "http://#{@host}:#{@port}#{apiVersion}/#{url}"
+			url: "#{protocol}://#{@host}:#{@port}#{apiVersion}/#{path}"
 			json: true
+			agent: httpsagent if httpsagent?
 		}
 
 	# Response handler for request

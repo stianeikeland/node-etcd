@@ -1,10 +1,12 @@
-require 'should'
+should = require 'should'
 nock = require 'nock'
-etcd = new (require '../src/index.coffee')
+Etcd = require '../src/index.coffee'
 
 # Tests for utility functions
 
 describe 'Utility', () ->
+
+	etcd = new Etcd
 
 	describe '#_stripSlashPrefix()', () ->
 		it 'should strip prefix-/ from key', () ->
@@ -36,6 +38,8 @@ describe 'Utility', () ->
 # Tests for exposed api functions
 
 describe 'Basic functions', () ->
+
+	etcd = new Etcd
 
 	getNock = () ->
 		nock 'http://127.0.0.1:4001'
@@ -93,4 +97,17 @@ describe 'Basic functions', () ->
 				val.should.equal 'etcd v0.1.0-8-gaad1626'
 				done err, val
 
+describe 'SSL support', () ->
+
+	it 'should use https url if sslopts is given', () ->
+		etcdssl = new Etcd 'localhost', '4001', {}
+		opt = etcdssl._prepareOpts 'path'
+		opt.url.should.match(/^https:.+$/)
+
+	it 'should create https.agent and set ca if ca is given', () ->
+		etcdsslca = new Etcd 'localhost', '4001', {ca: ['ca']}
+		opt = etcdsslca._prepareOpts 'path'
+		should.exist opt.agent
+		should.exist opt.agent.options.ca
+		opt.agent.options.ca.should.eql ['ca']
 

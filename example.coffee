@@ -72,3 +72,17 @@ c.leader (err, val) ->
 	console.log err, val
 
 
+## SSL Support
+
+# Pass etcd a dictionary containing ssl options
+# Check out http://nodejs.org/api/https.html#https_https_request_options_callback
+fs = require 'fs'
+
+sslopts =
+	ca: [ fs.readFileSync 'ca.pem' ]
+	cert: fs.readFileSync 'cert.pem'
+	key: fs.readFileSync 'key.pem'
+
+etcdssl = new Etcd 'localhost', '4001', sslopts
+
+etcdssl.get 'key', console.log
