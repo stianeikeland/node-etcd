@@ -99,16 +99,13 @@ describe 'Basic functions', () ->
 
 describe 'SSL support', () ->
 
-	etcdssl = new Etcd 'localhost', '4001', {}
-	etcdsslca = new Etcd 'localhost', '4001', {ca: ['ca']}
-
-	it 'should use https if sslopts is given', () ->
-		(nock 'https://127.0.0.1:4001').get('/').reply(200, 'etcd')
-		etcdssl.version (err, val) ->
-			val.should.equal 'etcd'
-			done err, val
+	it 'should use https url if sslopts is given', () ->
+		etcdssl = new Etcd 'localhost', '4001', {}
+		opt = etcdssl._prepareOpts 'path'
+		opt.url.should.match(/^https:.+$/)
 
 	it 'should create https.agent and set ca if ca is given', () ->
+		etcdsslca = new Etcd 'localhost', '4001', {ca: ['ca']}
 		opt = etcdsslca._prepareOpts 'path'
 		should.exist opt.agent
 		should.exist opt.agent.options.ca
