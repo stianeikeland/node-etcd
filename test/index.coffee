@@ -87,18 +87,13 @@ describe 'Basic functions', () ->
 
 	describe '#leader()', () ->
 		it 'should ask etcd for leader', (done) ->
-			getNock().get('/leader').reply(200, '{"value":"value"}')
+			getNock().get('/v1/stats/leader').reply(200, '{"value":"value"}')
 			etcd.leader checkVal done
 
-	describe '#statsLeader()', () ->
-		it 'should ask etcd for statistics for leader', (done) ->
-			getNock().get('/v1/stats/leader').reply(200, '{"value":"value"}')
-			etcd.statsLeader checkVal done
-
-	describe '#statsSelf()', () ->
+	describe '#self()', () ->
 		it 'should ask etcd for statistics for connected server', (done) ->
 			getNock().get('/v1/stats/self').reply(200, '{"value":"value"}')
-			etcd.statsSelf checkVal done
+			etcd.stats checkVal done
 
 	describe '#version()', () ->
 		it 'should ask etcd for version', (done) ->
