@@ -82,6 +82,16 @@ class Etcd
 		opt = @_prepareOpts "leader", ""
 		request.get opt, @_responseHandler callback
 
+	# Get statistics about the leader
+	statsLeader: (callback) ->
+		opt = @_prepareOpts "stats/leader"
+		request.get opt, @_responseHandler callback
+
+	# Get statistics about the currently connected entity
+	statsSelf: (callback) ->
+		opt = @_prepareOpts "stats/self"
+		request.get opt, @_responseHandler callback
+
 	# Get version of etcd
 	version: (callback) ->
 		opt = @_prepareOpts "", ""
