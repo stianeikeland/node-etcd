@@ -63,6 +63,17 @@ describe 'Basic functions', () ->
 				.reply(200, '{"action":"SET","key":"/key","prevValue":"value","value":"value","index":1}')
 			etcd.set 'key', 'value', checkVal done
 
+		it 'should follow 307 redirects', (done) ->
+			(nock 'http://127.0.0.1:4002')
+				.post('/v1/keys/key', { value: "value" })
+				.reply(200, '{"action":"SET","key":"/key","prevValue":"value","value":"value","index":1}')
+
+			(nock 'http://127.0.0.1:4001')
+				.post('/v1/keys/key', { value: "value" })
+				.reply(307, "", { location: "http://127.0.0.1:4002/v1/keys/key" })
+
+			etcd.set 'key', 'value', checkVal done
+
 	describe '#setTest()', () ->
 		it 'should set key=value with prevValue as formdata', (done) ->
 			getNock()

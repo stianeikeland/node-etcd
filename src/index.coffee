@@ -41,7 +41,7 @@ class Etcd
 		if extraopts?
 			_.extend opt.form, extraopts
 
-		request.post opt, @_responseHandler callback
+		@_postRedirectHandler opt, @_responseHandler callback
 
 	# Delete given key
 	del: (key, callback) ->
@@ -119,6 +119,18 @@ class Etcd
 				callback body, ""
 			else
 				callback err, body
+
+	# This is a workaround for issue #556 in the request library
+	# 307 redirects are changed from POST to GET
+	# https://github.com/mikeal/request/pull/556
+	_postRedirectHandler: (opt, callback) ->
+		request.post opt, (err, resp, body) =>
+			# Follow if we get a 307 redirect to leader
+			if resp.statusCode is 307 and resp.headers.location?
+				opt.url = resp.headers.location
+				@_postRedirectHandler opt, callback
+			else
+				callback err, resp, body
 
 
 exports = module.exports = Etcd
