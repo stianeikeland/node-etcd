@@ -58,6 +58,9 @@ c.machines (err, val) ->
 c.leader (err, val) ->
 	console.log err, val
 
+# Statistics (leader and self)
+c.leaderStats (err, val) -> console.log err, val
+c.selfStats (err, val) -> console.log err, val
 
 # SSL Support
 # Pass etcd a dictionary containing ssl options
