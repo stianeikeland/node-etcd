@@ -71,9 +71,9 @@ c.machines (err, val) ->
 c.leader (err, val) ->
 	console.log err, val
 
-# Statistics
-c.stats (err, val) ->
-	console.log err, val
+# Statistics (leader and self)
+c.statsLeader (err, val) -> console.log err, val
+c.statsSelf (err, val) -> console.log err, val
 
 
 ## SSL Support

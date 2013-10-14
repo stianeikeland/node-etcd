@@ -77,13 +77,18 @@ class Etcd
 		opt = @_prepareOpts "keys/_etcd/machines"
 		request.get opt, @_responseHandler callback
 
-	# Get statistics about the cluster leader
+	# Get the current cluster leader
 	leader: (callback) ->
+		opt = @_prepareOpts "leader", ""
+		request.get opt, @_responseHandler callback
+
+	# Get statistics about the leader
+	statsLeader: (callback) ->
 		opt = @_prepareOpts "stats/leader"
 		request.get opt, @_responseHandler callback
 
 	# Get statistics about the currently connected entity
-	stats: (callback) ->
+	statsSelf: (callback) ->
 		opt = @_prepareOpts "stats/self"
 		request.get opt, @_responseHandler callback
 
