@@ -25,10 +25,12 @@ class Watcher extends EventEmitter
 			@index = val.index + 1
 			@emit 'change', val
 			@_watch()
-
-		if err isnt null
+		else if err isnt null
 			@emit 'reconnect', { error: err, reconnectcount: @retryAttempts }
 			@_retry()
+		else
+			@emit 'error', "Received unexpected response '#{val}'"
+			@_watch()
 
 	_retry: () =>
 		setTimeout @_watch, 500 * @retryAttempts
