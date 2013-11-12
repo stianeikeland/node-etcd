@@ -11,40 +11,25 @@ class Etcd
 
 
 	create: (key, value, callback) ->
-		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2"
-		_.extend opt, { form: { value: value } }
+		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", value
 		@_redirectHandler request.post, opt, @_responseHandler callback
 
 
 	update: (key, value, options, callback) ->
-
-		if typeof options is 'function'
-			callback = options
-			options = {}
-
-		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", options
-		_.extend opt, { form: { value: value } }
-
+		[options, callback] = @_argParser options, callback
+		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", value, options
 		@_redirectHandler request.put, opt, @_responseHandler callback
 
 
 	get: (key, options, callback) ->
-
-		if typeof options is 'function'
-			callback = options
-			options = {}
-
-		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key), "/v2", options
+		[options, callback] = @_argParser options, callback
+		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key), "/v2", null, options
 		request.get opt, @_responseHandler callback
 
 
 	del: (key, options, callback) ->
-
-		if typeof options is 'function'
-			callback = options
-			options = {}
-
-		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key), "/v2", options
+		[options, callback] = @_argParser options, callback
+		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key), "/v2", null, options
 		@_redirectHandler request.del, opt, @_responseHandler callback
 
 
@@ -132,7 +117,7 @@ class Etcd
 		key.replace /^\//, ''
 
 	# Prepare request options
-	_prepareOpts: (path, apiVersion = "/v1", queryString = null) ->
+	_prepareOpts: (path, apiVersion = "/v1", value = null, queryString = null) ->
 		protocol = "http"
 
 		# Set up HttpsAgent if sslopts {ca, key, cert} are given
@@ -146,6 +131,7 @@ class Etcd
 			json: true
 			agent: httpsagent if httpsagent?
 			qs: queryString if queryString?
+			form: { value: value } if value?
 		}
 
 	# Response handler for request
@@ -176,5 +162,12 @@ class Etcd
 				@_redirectHandler req, opt, callback
 			else
 				callback err, resp, body
+
+	# Swap callback and options if no options was given.
+	_argParser: (options, callback) ->
+		if typeof options is 'function'
+			[null, options]
+		else
+			[options, callback]
 
 exports = module.exports = Etcd
