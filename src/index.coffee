@@ -9,10 +9,44 @@ class Etcd
 	# For https: provide {ca, crt, key} as sslopts.
 	constructor: (@host = '127.0.0.1', @port = '4001', @sslopts = null) ->
 
-	# Get value for given key
-	get: (key, callback) ->
-		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key)
+
+	create: (key, value, callback) ->
+		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2"
+		_.extend opt, { form: { value: value } }
+		@_redirectHandler request.post, opt, @_responseHandler callback
+
+
+	update: (key, value, options, callback) ->
+
+		if typeof options is 'function'
+			callback = options
+			options = {}
+
+		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", options
+		_.extend opt, { form: { value: value } }
+
+		@_redirectHandler request.put, opt, @_responseHandler callback
+
+
+	get: (key, options, callback) ->
+
+		if typeof options is 'function'
+			callback = options
+			options = {}
+
+		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key), "/v2", options
 		request.get opt, @_responseHandler callback
+
+
+	del: (key, options, callback) ->
+
+		if typeof options is 'function'
+			callback = options
+			options = {}
+
+		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key), "/v2", options
+		@_redirectHandler request.del, opt, @_responseHandler callback
+
 
 	# Set key to value
 	set: (key, value, callback) ->
@@ -43,10 +77,6 @@ class Etcd
 
 		@_postRedirectHandler opt, @_responseHandler callback
 
-	# Delete given key
-	del: (key, callback) ->
-		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key)
-		request.del opt, @_responseHandler callback
 
 	# Watch for value changes on a key
 	watch: (key, callback) ->
@@ -102,7 +132,7 @@ class Etcd
 		key.replace /^\//, ''
 
 	# Prepare request options
-	_prepareOpts: (path, apiVersion = "/v1") ->
+	_prepareOpts: (path, apiVersion = "/v1", queryString = null) ->
 		protocol = "http"
 
 		# Set up HttpsAgent if sslopts {ca, key, cert} are given
@@ -115,6 +145,7 @@ class Etcd
 			url: "#{protocol}://#{@host}:#{@port}#{apiVersion}/#{path}"
 			json: true
 			agent: httpsagent if httpsagent?
+			qs: queryString if queryString?
 		}
 
 	# Response handler for request
@@ -137,5 +168,13 @@ class Etcd
 			else
 				callback err, resp, body
 
+	_redirectHandler: (req, opt, callback) ->
+		req opt, (err, resp, body) =>
+			# Follow if we get a 307 redirect to leader
+			if resp.statusCode is 307 and resp.headers.location?
+				opt.url = resp.headers.location
+				@_redirectHandler req, opt, callback
+			else
+				callback err, resp, body
 
 exports = module.exports = Etcd

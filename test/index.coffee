@@ -52,7 +52,7 @@ describe 'Basic functions', () ->
 	describe '#get()', () ->
 		it 'should return entry from etcd', (done) ->
 			getNock()
-				.get('/v1/keys/key')
+				.get('/v2/keys/key')
 				.reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
 			etcd.get 'key', checkVal done
 
@@ -83,7 +83,7 @@ describe 'Basic functions', () ->
 
 	describe '#del()', () ->
 		it 'should delete a given key in etcd', (done) ->
-			getNock().delete('/v1/keys/key').reply(200)
+			getNock().delete('/v2/keys/key').reply(200)
 			etcd.del 'key', done
 
 	describe '#watch()', () ->
