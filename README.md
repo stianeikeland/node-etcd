@@ -12,6 +12,12 @@ Travis-CI: [![Build Status](https://travis-ci.org/stianeikeland/node-etcd.png?br
 $ npm install node-etcd
 ```
 
+There also exist an experimental branch with support for etcd v2, to use it try:
+
+```
+$ npm install node-etcd --tag beta
+```
+
 ## Usage
 
 ```coffeescript
