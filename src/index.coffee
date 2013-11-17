@@ -3,65 +3,39 @@ _       = require 'underscore'
 Watcher = require './watcher'
 HttpsAgent = (require 'https').Agent
 
+# Etcd client for etcd protocol version 2
 class Etcd
 
 	# Constructor, set etcd host and port.
 	# For https: provide {ca, crt, key} as sslopts.
 	constructor: (@host = '127.0.0.1', @port = '4001', @sslopts = null) ->
 
-
-	create: (key, value, callback) ->
-		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", value
-		@_redirectHandler request.post, opt, @_responseHandler callback
-
-
-	update: (key, value, options, callback) ->
+	# Set key to value
+	# Usage:
+	# 	.set("key", "value", callback)
+	# 	.set("key", "value", {prevValue: "oldvalue"}, callback)
+	set: (key, value, options, callback) ->
 		[options, callback] = @_argParser options, callback
 		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", value, options
 		@_redirectHandler request.put, opt, @_responseHandler callback
 
-
+	# Get value of key
+	# Usage:
+	# 	.get("key", callback)
+	# 	.get("key", {recursive: true}, callback)
 	get: (key, options, callback) ->
 		[options, callback] = @_argParser options, callback
-		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key), "/v2", null, options
+		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", null, options
 		request.get opt, @_responseHandler callback
 
-
+	# Delete a key
+	# Usage:
+	# 	.del("key", callback)
+	# 	.del("key", {recursive: true}, callback)
 	del: (key, options, callback) ->
 		[options, callback] = @_argParser options, callback
-		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key), "/v2", null, options
+		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", null, options
 		@_redirectHandler request.del, opt, @_responseHandler callback
-
-
-	# Set key to value
-	set: (key, value, callback) ->
-		@setCustom key, value, {}, callback
-
-	# Set key to value with expirey
-	setTTL: (key, value, ttl, callback) ->
-		@setCustom key, value, {ttl: ttl}, callback
-
-	# Atomic test and set value
-	setTest: (key, value, prevValue, callback) ->
-		@setCustom key, value, {prevValue: prevValue}, callback
-
-	# Atomic test and set value with ttl
-	setTestTTL: (key, value, prevValue, ttl, callback) ->
-		@setCustom key, value, {prevValue: prevValue, ttl: ttl}, callback
-
-	# Set key to value with exta options (ttl, prevValue, etc)
-	setCustom: (key, value, extraopts, callback) ->
-		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key)
-
-		_.extend opt, {
-			form: { value: value }
-		}
-
-		if extraopts?
-			_.extend opt.form, extraopts
-
-		@_postRedirectHandler opt, @_responseHandler callback
-
 
 	# Watch for value changes on a key
 	watch: (key, callback) ->
@@ -143,17 +117,8 @@ class Etcd
 				callback err, body
 
 	# This is a workaround for issue #556 in the request library
-	# 307 redirects are changed from POST to GET
+	# 307 redirects are changed from POST/PUT/DEL to GET
 	# https://github.com/mikeal/request/pull/556
-	_postRedirectHandler: (opt, callback) ->
-		request.post opt, (err, resp, body) =>
-			# Follow if we get a 307 redirect to leader
-			if resp.statusCode is 307 and resp.headers.location?
-				opt.url = resp.headers.location
-				@_postRedirectHandler opt, callback
-			else
-				callback err, resp, body
-
 	_redirectHandler: (req, opt, callback) ->
 		req opt, (err, resp, body) =>
 			# Follow if we get a 307 redirect to leader

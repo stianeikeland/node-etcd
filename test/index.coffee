@@ -56,30 +56,36 @@ describe 'Basic functions', () ->
 				.reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
 			etcd.get 'key', checkVal done
 
-	describe '#set()', () ->
-		it 'should post key=value to etcd', (done) ->
+		it 'should send options to etcd as request url', (done) ->
 			getNock()
-				.post('/v1/keys/key', { value: "value" })
+				.get('/v2/keys/key?recursive=true')
+				.reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
+			etcd.get 'key', { recursive: true }, checkVal done
+
+	describe '#set()', () ->
+		it 'should put to etcd', (done) ->
+			getNock()
+				.put('/v2/keys/key', { value: "value" })
 				.reply(200, '{"action":"SET","key":"/key","prevValue":"value","value":"value","index":1}')
 			etcd.set 'key', 'value', checkVal done
+
+		it 'should send options to etcd as request url', (done) ->
+			getNock()
+				.put('/v2/keys/key?prevValue=oldvalue', { value: "value"})
+				.reply(200, '{"action":"SET","key":"/key","prevValue":"oldvalue","value":"value","index":1}')
+			etcd.set 'key', 'value', { prevValue: "oldvalue" }, checkVal done
 
 		it 'should follow 307 redirects', (done) ->
 			(nock 'http://127.0.0.1:4002')
-				.post('/v1/keys/key', { value: "value" })
+				.put('/v2/keys/key', { value: "value" })
 				.reply(200, '{"action":"SET","key":"/key","prevValue":"value","value":"value","index":1}')
 
 			(nock 'http://127.0.0.1:4001')
-				.post('/v1/keys/key', { value: "value" })
-				.reply(307, "", { location: "http://127.0.0.1:4002/v1/keys/key" })
+				.put('/v2/keys/key', { value: "value" })
+				.reply(307, "", { location: "http://127.0.0.1:4002/v2/keys/key" })
 
 			etcd.set 'key', 'value', checkVal done
 
-	describe '#setTest()', () ->
-		it 'should set key=value with prevValue as formdata', (done) ->
-			getNock()
-				.post('/v1/keys/key', { value: "new", prevValue: "old" })
-				.reply(200, '{"action":"SET","key":"/key","prevValue":"prev","value":"value","index":1}')
-			etcd.setTest 'key', 'new', 'old', checkVal done
 
 	describe '#del()', () ->
 		it 'should delete a given key in etcd', (done) ->
