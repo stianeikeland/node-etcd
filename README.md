@@ -47,6 +47,8 @@ w = c.watcher '/key'
 
 w.on 'change', console.log
 w.on 'reconnect', console.log
+# Note that watcher emits 'error' on invalid content
+w.on 'error', console.log
 
 # Set with expiry (time to live)
 c.setTTL "/key", "value", 5, (err, val) ->
