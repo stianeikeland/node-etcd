@@ -38,6 +38,13 @@ describe 'Watcher', () ->
 
 		etcd.change "error", null
 
+	it 'should emit error if received content is invalid', (done) ->
+		etcd = new FakeEtcd
+		w = new Watcher etcd, 'key'
+		w.on 'error', () -> done()
+
+		etcd.change null, 'invalid content'
+
 	it 'should reconnect (call watch again) on error', (done) ->
 		etcd = new FakeEtcd
 		w = new Watcher etcd, 'key'
