@@ -18,6 +18,10 @@ There also exist an experimental branch with support for etcd v2, to use it try:
 $ npm install node-etcd --tag beta
 ```
 
+## Changes
+
+- 0.6.0 - Watcher now emits 'error' on invalid responses.
+
 ## Usage
 
 ```coffeescript
