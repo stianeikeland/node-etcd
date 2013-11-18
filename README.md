@@ -20,6 +20,7 @@ $ npm install node-etcd --tag beta
 
 ## Changes
 
+- 2.0.0 - Basic support for etcd protocol v2. set, get, del now supports options.
 - 0.6.0 - Watcher now emits 'error' on invalid responses.
 
 ## Usage
@@ -33,12 +34,21 @@ c = new Etcd
 c.set "/key", "value", (err, val) ->
 	console.log err, val
 
+c.set "key", "value", { prevValue : "oldvalue", ttl: 123 }, (err, val) ->
+	console.log err, val
+
 # Get a value
 c.get "/key", (err, val) ->
 	console.log err, val
 
+c.get "key", { recursive: true }, (err, val) ->
+	console.log err, val
+
 # Delete a value
 c.del "/key", (err, val) ->
+	console.log err, val
+
+c.del "key", { recursive: true }, (err, val) ->
 	console.log err, val
 
 # Watch a value (wait for a single value change)
