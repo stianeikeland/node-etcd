@@ -93,18 +93,27 @@ describe 'Basic functions', () ->
 			etcd.del 'key', done
 
 	describe '#watch()', () ->
-		it 'should ask etcd to watch a given key', (done) ->
-			getNock().get('/v1/watch/key').reply(200, {"action":"SET","key":"/key","value":"value","newKey":true,"index":2})
+		it 'should do a get with wait=true', (done) ->
+			getNock()
+				.get('/v2/keys/key?wait=true')
+				.reply(200, '{"action":"set","key":"/key","value":"value","modifiedIndex":7}')
 			etcd.watch 'key', checkVal done
+
+	describe '#watchIndex()', () ->
+		it 'should do a get with wait=true and waitIndex=x', (done) ->
+			getNock()
+				.get('/v2/keys/key?waitIndex=1&wait=true')
+				.reply(200, '{"action":"set","key":"/key","value":"value","modifiedIndex":7}')
+			etcd.watchIndex 'key', 1, checkVal done
 
 	describe '#machines()', () ->
 		it 'should ask etcd for connected machines', (done) ->
-			getNock().get('/v1/keys/_etcd/machines').reply(200, '{"value":"value"}')
+			getNock().get('/v2/keys/_etcd/machines').reply(200, '{"value":"value"}')
 			etcd.machines checkVal done
 
 	describe '#leader()', () ->
 		it 'should ask etcd for leader', (done) ->
-			getNock().get('/v1/leader').reply(200, '{"value":"value"}')
+			getNock().get('/v2/leader').reply(200, '{"value":"value"}')
 			etcd.leader checkVal done
 
 	describe '#leaderStats()', () ->

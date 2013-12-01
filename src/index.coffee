@@ -38,23 +38,20 @@ class Etcd
 		@_redirectHandler request.del, opt, @_responseHandler callback
 
 	# Watch for value changes on a key
-	watch: (key, callback) ->
-		opt = @_prepareOpts "watch/" + @_stripSlashPrefix(key)
-		request.get opt, @_responseHandler callback
+	watch: (key, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		options ?= {}
+		options.wait = true
+
+		@get key, options, callback
 
 	# Watch for value changes on a key since a specific index
-	watchIndex: (key, index, callback) ->
-		@watchCustom key, {index: index}, callback
+	watchIndex: (key, index, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		options ?= {}
+		options.waitIndex = index
 
-	# Watch with custom options
-	watchCustom: (key, opts, callback) ->
-		opt = @_prepareOpts "watch/" + @_stripSlashPrefix(key)
-
-		_.extend opt, {
-			form: opts
-		} if opts?
-
-		request.post opt, @_responseHandler callback
+		@watch key, options, callback
 
 	# Returns an eventemitter that watches a key, emits 'change' on value change
 	# or 'reconnect' when trying to recover from errors.
@@ -63,12 +60,12 @@ class Etcd
 
 	# Get the etcd cluster machines
 	machines: (callback) ->
-		opt = @_prepareOpts "keys/_etcd/machines"
+		opt = @_prepareOpts "keys/_etcd/machines", "/v2"
 		request.get opt, @_responseHandler callback
 
 	# Get the current cluster leader
 	leader: (callback) ->
-		opt = @_prepareOpts "leader"
+		opt = @_prepareOpts "leader", "/v2"
 		request.get opt, @_responseHandler callback
 
 	# Get statistics about the leader
