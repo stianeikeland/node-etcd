@@ -32,10 +32,14 @@ class Etcd
 	# Usage:
 	# 	.del("key", callback)
 	# 	.del("key", {recursive: true}, callback)
+	# 	.delete("key", callback)
 	del: (key, options, callback) ->
 		[options, callback] = @_argParser options, callback
 		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", null, options
 		@_redirectHandler request.del, opt, @_responseHandler callback
+
+	delete: (key, options, callback) ->
+		@del key, options, callback
 
 	# Watch for value changes on a key
 	watch: (key, options, callback) ->
