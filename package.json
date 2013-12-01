@@ -1,6 +1,6 @@
 {
   "name": "node-etcd",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "etcd library for node.js",
   "licenses": [
     {
