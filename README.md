@@ -20,82 +20,154 @@ $ npm install node-etcd --tag beta
 
 ## Changes
 
+- 2.0.1 - Watch, delete and stats now use new v2 api.
 - 2.0.0 - Basic support for etcd protocol v2. set, get, del now supports options.
 - 0.6.0 - Watcher now emits 'error' on invalid responses.
 
-## Usage
+## Basic usage
 
-```coffeescript
-# Coffee-script examples:
-Etcd = require 'node-etcd'
-c = new Etcd
-
-# Set a value
-c.set "/key", "value", (err, val) ->
-	console.log err, val
-
-c.set "key", "value", { prevValue : "oldvalue", ttl: 123 }, (err, val) ->
-	console.log err, val
-
-# Get a value
-c.get "/key", (err, val) ->
-	console.log err, val
-
-c.get "key", { recursive: true }, (err, val) ->
-	console.log err, val
-
-# Delete a value
-c.del "/key", (err, val) ->
-	console.log err, val
-
-c.del "key", { recursive: true }, (err, val) ->
-	console.log err, val
-
-# Watch a value (wait for a single value change)
-c.watch "/key", (err, val) ->
-	console.log err, val
-
-# Watcher retuns an eventemitter for continuously watching changes,
-# it also handles reconnect on error, etc..
-w = c.watcher '/key'
-
-w.on 'change', console.log
-w.on 'reconnect', console.log
-# Note that watcher emits 'error' on invalid content
-w.on 'error', console.log
-
-# Set with expiry (time to live)
-c.setTTL "/key", "value", 5, (err, val) ->
-	console.log err, val
-
-# Atomic setting (test and set)
-c.setTest "/key", "new value", "old value", (err, val) ->
-	console.log err, val
-
-# List machines in the etcd cluster
-c.machines (err, val) ->
-	console.log err, val
-
-# Get the leader of the cluster
-c.leader (err, val) ->
-	console.log err, val
-
-# Statistics (leader and self)
-c.leaderStats (err, val) -> console.log err, val
-c.selfStats (err, val) -> console.log err, val
-
-# SSL Support
-# Pass etcd a dictionary containing ssl options
-# Check out http://nodejs.org/api/https.html#https_https_request_options_callback
-fs = require 'fs'
-
-sslopts =
-	ca: [ fs.readFileSync 'ca.pem' ]
-	cert: fs.readFileSync 'cert.pem'
-	key: fs.readFileSync 'key.pem'
-
-etcdssl = new Etcd 'localhost', '4001', sslopts
-
-etcdssl.get 'key', console.log
-
+```javascript
+Etcd = require('node-etcd');
+etcd = new Etcd();
+etcd.set("key", "value");
+etcd.get("key", console.log);
 ```
+
+## Methods
+
+### Etcd([host = 127.0.0.1], [port = '4001'], [ssloptions])
+
+Create a new etcd client
+
+```javascript
+etcd = new Etcd();
+etcd = new Etcd('127.0.0.1', '4001');
+```
+
+### .set(key, value = null, [options], [callback])
+
+Set key to value, or create key/directory.
+
+```javascript
+etcd.set("key");
+etcd.set("key", "value");
+etcd.set("key", "value", console.log);
+etcd.set("key", "value", { ttl: 60 }, console.log);
+```
+
+Available options include:
+- `ttl` (time to live in seconds)
+- `prevValue` (previous value, for compare and swap)
+- `prevExist` (existance test, for compare and swap)
+- `prevIndex` (previous index, for compare and swap)
+
+Will create a directory when used without value (value=null): `etcd.set("directory/");`
+
+### .get(key, [options], [callback])
+
+Get a key or path.
+
+```javascript
+etcd.get("key", console.log);
+etcd.get("key", { recursive: true }, console.log);
+```
+
+Available options include:
+- `recursive` (bool, list all values in directory recursively)
+- `wait` (bool, wait for changes to key)
+- `waitIndex` (wait for changes after given index)
+
+### .del(key, [options], [callback])
+
+Delete a key or path
+
+```javascript
+etcd.del("key");
+etcd.del("key", console.log);
+etcd.del("key/", { recursive: true }, console.log);
+```
+
+Available options include:
+- `recursive` (bool, delete recursively)
+
+Alias: `.delete()`
+
+### .watch(key, [options], [callback])
+
+This is a convenience method for get with `{wait: true}`.
+
+```javascript
+etcd.watch("key");
+etcd.watch("key", console.log);
+```
+
+### .watchIndex(key, index, [options], callback)
+
+This is a convenience method for get with `{wait: true, waitIndex: index}`.
+
+```javascript
+etcd.watchIndex("key", 7, console.log);
+```
+
+### .watcher(key, [index])
+
+Returns an eventemitter for watching for changes on a key
+
+```javascript
+watcher = etcd.watcher("key");
+watcher.on("change", console.log);
+```
+
+Signals:
+- `change` - emitted on value change
+- `reconnect` - emitted on reconnect
+- `error` - emitted on invalid content
+
+### .machines(callback)
+
+Returns information about etcd nodes in the cluster
+
+```javascript
+etcd.machines(console.log);
+```
+
+### .leader(callback)
+
+Return the leader in the cluster
+
+```javascript
+etcd.leader(console.log);
+```
+
+### .leaderStats(callback)
+
+Return statistics about cluster leader
+
+```javascript
+etcd.leaderStats(console.log);
+```
+
+### .selfStats(callback)
+
+Return statistics about connected etcd node
+
+```javascript
+etcd.selfStats(console.log);
+```
+
+## SSL support
+
+Pass etcdclient a dictionary containing ssl options, check out http://nodejs.org/api/https.html#https_https_request_options_callback
+
+```javascript
+fs = require('fs');
+
+sslopts = {
+	ca: [ fs.readFileSync('ca.pem') ],
+	cert: fs.readFileSync('cert.pem'),
+	key: fs.readFileSync('key.pem')
+};
+
+etcdssl = new Etcd('localhost', '4001', sslopts);
+```
+
