@@ -86,6 +86,12 @@ describe 'Basic functions', () ->
 
 			etcd.set 'key', 'value', checkVal done
 
+	describe '#testAndSet()', () ->
+		it 'should set using prevValue', (done) ->
+			getNock()
+				.put('/v2/keys/key?prevValue=oldvalue', { value: "value"})
+				.reply(200, '{"action":"SET","key":"/key","prevValue":"oldvalue","value":"value","index":1}')
+			etcd.testAndSet 'key', 'value', 'oldvalue', checkVal done
 
 	describe '#del()', () ->
 		it 'should delete a given key in etcd', (done) ->

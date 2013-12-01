@@ -41,6 +41,15 @@ class Etcd
 	delete: (key, options, callback) ->
 		@del key, options, callback
 
+	# Test and set value, convencience for set with {prevValue:'oldvalue'}
+	testAndSet: (key, value, oldvalue, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		options ?= {}
+		options.prevValue = oldvalue
+
+		@set key, value, options, callback
+
+
 	# Watch for value changes on a key
 	watch: (key, options, callback) ->
 		[options, callback] = @_argParser options, callback

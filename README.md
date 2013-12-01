@@ -20,7 +20,7 @@ $ npm install node-etcd --tag beta
 
 ## Changes
 
-- 2.0.1 - Watch, delete and stats now use new v2 api.
+- 2.0.1 - Watch, delete and stats now use new v2 api. Added testAndSet convenience method.
 - 2.0.0 - Basic support for etcd protocol v2. set, get, del now supports options.
 - 0.6.0 - Watcher now emits 'error' on invalid responses.
 
@@ -62,6 +62,14 @@ Available options include:
 - `prevIndex` (previous index, for compare and swap)
 
 Will create a directory when used without value (value=null): `etcd.set("directory/");`
+
+### .testAndSet(key, value, oldvalue, [options], [callback])
+
+Convenience method for test and set (set with {prevValue: oldvalue})
+
+```javascript
+etcd.testAndSet("key", "newvalue", "oldvalue");
+```
 
 ### .get(key, [options], [callback])
 
