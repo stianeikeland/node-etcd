@@ -17,7 +17,7 @@ describe 'Utility', () ->
 		it 'should return default request options', () ->
 			etcd._prepareOpts('keypath/key').should.include {
 				json: true
-				url: 'http://127.0.0.1:4001/v1/keypath/key'
+				url: 'http://127.0.0.1:4001/v2/keypath/key'
 			}
 
 	describe '#_responseHandler()', () ->
@@ -118,17 +118,17 @@ describe 'Basic functions', () ->
 
 	describe '#leaderStats()', () ->
 		it 'should ask etcd for statistics for leader', (done) ->
-			getNock().get('/v1/stats/leader').reply(200, '{"value":"value"}')
+			getNock().get('/v2/stats/leader').reply(200, '{"value":"value"}')
 			etcd.leaderStats checkVal done
 
 	describe '#selfStats()', () ->
 		it 'should ask etcd for statistics for connected server', (done) ->
-			getNock().get('/v1/stats/self').reply(200, '{"value":"value"}')
+			getNock().get('/v2/stats/self').reply(200, '{"value":"value"}')
 			etcd.selfStats checkVal done
 
 	describe '#version()', () ->
 		it 'should ask etcd for version', (done) ->
-			getNock().get('/').reply(200, 'etcd v0.1.0-8-gaad1626')
+			getNock().get('/version').reply(200, 'etcd v0.1.0-8-gaad1626')
 			etcd.version (err, val) ->
 				val.should.equal 'etcd v0.1.0-8-gaad1626'
 				done err, val

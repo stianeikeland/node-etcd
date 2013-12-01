@@ -64,12 +64,12 @@ class Etcd
 
 	# Get the etcd cluster machines
 	machines: (callback) ->
-		opt = @_prepareOpts "keys/_etcd/machines", "/v2"
+		opt = @_prepareOpts "keys/_etcd/machines"
 		request.get opt, @_responseHandler callback
 
 	# Get the current cluster leader
 	leader: (callback) ->
-		opt = @_prepareOpts "leader", "/v2"
+		opt = @_prepareOpts "leader"
 		request.get opt, @_responseHandler callback
 
 	# Get statistics about the leader
@@ -84,7 +84,7 @@ class Etcd
 
 	# Get version of etcd
 	version: (callback) ->
-		opt = @_prepareOpts "", ""
+		opt = @_prepareOpts "version", ""
 		request.get opt, @_responseHandler callback
 
 	# Strip the prefix slash if set
@@ -92,7 +92,7 @@ class Etcd
 		key.replace /^\//, ''
 
 	# Prepare request options
-	_prepareOpts: (path, apiVersion = "/v1", value = null, queryString = null) ->
+	_prepareOpts: (path, apiVersion = "/v2", value = null, queryString = null) ->
 		protocol = "http"
 
 		# Set up HttpsAgent if sslopts {ca, key, cert} are given
