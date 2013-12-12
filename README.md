@@ -20,6 +20,7 @@ $ npm install node-etcd --tag beta
 
 ## Changes
 
+- 0.6.1 - Fixes issue #10, missing response caused error when server connection failed / server responded incorrectly.
 - 0.6.0 - Watcher now emits 'error' on invalid responses.
 
 ## Usage
