@@ -131,7 +131,7 @@ class Etcd
 	_postRedirectHandler: (opt, callback) ->
 		request.post opt, (err, resp, body) =>
 			# Follow if we get a 307 redirect to leader
-			if resp.statusCode is 307 and resp.headers.location?
+			if resp and resp.statusCode is 307 and resp.headers.location?
 				opt.url = resp.headers.location
 				@_postRedirectHandler opt, callback
 			else
