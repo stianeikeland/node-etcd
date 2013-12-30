@@ -54,6 +54,13 @@ describe 'Watcher', () ->
 
 		w = new Watcher etcd, 'key', null, { recursive: true }
 
+	it 'should emit action on event', (done) ->
+		etcd = new FakeEtcd
+		w = new Watcher etcd, 'key'
+		w.on 'set', (res) -> done()
+
+		etcd.change null, { action: 'set', node: { key: '/key', value: 'value', modifiedIndex: 1, createdIndex: 1 } }
+
 	it 'should reconnect (call watch again) on error', (done) ->
 		etcd = new FakeEtcd
 		w = new Watcher etcd, 'key'

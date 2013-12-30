@@ -21,7 +21,7 @@ $ npm install node-etcd@0.6.1
 
 ## Changes
 
-- 2.0.3 - Watcher supports options.
+- 2.0.3 - Watcher supports options. Watcher emits etcd action type.
 - 2.0.2 - Mkdir and rmdir. Fix watcher for v2 api.
 - 2.0.1 - Watch, delete and stats now use new v2 api. Added testAndSet convenience method.
 - 2.0.0 - Basic support for etcd protocol v2. set, get, del now supports options.
@@ -166,6 +166,7 @@ Signals:
 - `change` - emitted on value change
 - `reconnect` - emitted on reconnect
 - `error` - emitted on invalid content
+- `<etcd action>` - the etcd action that triggered the watcher (ex: set, delete).
 
 ### .machines(callback)
 

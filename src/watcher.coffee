@@ -4,6 +4,7 @@
 # Emits:
 # 	'change' - on value change
 # 	'reconnect' - on errors/timeouts
+# 	'<etcd action>' - the etcd action that triggered the watcher (set, delete, etc)..
 #
 # 	Automatically reconnects and backs off on errors.
 #
@@ -24,6 +25,7 @@ class Watcher extends EventEmitter
 			@retryAttempts = 0
 			@index = val.node.modifiedIndex + 1
 			@emit 'change', val
+			@emit val.action, val if val.action?
 			@_watch()
 		else if err isnt null
 			@emit 'reconnect', { error: err, reconnectcount: @retryAttempts }
