@@ -3,69 +3,90 @@ _       = require 'underscore'
 Watcher = require './watcher'
 HttpsAgent = (require 'https').Agent
 
+# Etcd client for etcd protocol version 2
 class Etcd
 
 	# Constructor, set etcd host and port.
 	# For https: provide {ca, crt, key} as sslopts.
 	constructor: (@host = '127.0.0.1', @port = '4001', @sslopts = null) ->
 
-	# Get value for given key
-	get: (key, callback) ->
-		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key)
+	# Set key to value
+	# Usage:
+	# 	.set("key", "value", callback)
+	# 	.set("key", "value", {prevValue: "oldvalue"}, callback)
+	set: (key, value, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", value, options
+		@_redirectHandler request.put, opt, @_responseHandler callback
+
+	# Get value of key
+	# Usage:
+	# 	.get("key", callback)
+	# 	.get("key", {recursive: true}, callback)
+	get: (key, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", null, options
 		request.get opt, @_responseHandler callback
 
-	# Set key to value
-	set: (key, value, callback) ->
-		@setCustom key, value, {}, callback
+	# Delete a key
+	# Usage:
+	# 	.del("key", callback)
+	# 	.del("key", {recursive: true}, callback)
+	# 	.delete("key", callback)
+	del: (key, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", null, options
+		@_redirectHandler request.del, opt, @_responseHandler callback
 
-	# Set key to value with expirey
-	setTTL: (key, value, ttl, callback) ->
-		@setCustom key, value, {ttl: ttl}, callback
+	delete: @::del
 
-	# Atomic test and set value
-	setTest: (key, value, prevValue, callback) ->
-		@setCustom key, value, {prevValue: prevValue}, callback
+	# Make a directory
+	# Usage:
+	# 	.mkdir("dir", callback)
+	# 	.mkdir("dir", options, callback)
+	mkdir: (dir, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		options.dir = true
+		@set dir, null, options, callback
 
-	# Atomic test and set value with ttl
-	setTestTTL: (key, value, prevValue, ttl, callback) ->
-		@setCustom key, value, {prevValue: prevValue, ttl: ttl}, callback
+	# Remove a directory
+	# Usage:
+	# 	.rmdir("dir", callback)
+	# 	.rmdir("dir", {recursive: true}, callback)
+	rmdir: (dir, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		options.dir = true
+		@del dir, options, callback
 
-	# Set key to value with exta options (ttl, prevValue, etc)
-	setCustom: (key, value, extraopts, callback) ->
-		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key)
+	# Compare and swap value if unchanged
+	# Usage:
+	# 	.compareAndSwap("key", "newValue", "oldValue", callback)
+	# 	.compareAndSwap("key", "newValue", "oldValue", options, callback)
+	# 	.testAndSet("key", "newValue", "oldValue", options, callback)
+	compareAndSwap: (key, value, oldvalue, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		options ?= {}
+		options.prevValue = oldvalue
 
-		_.extend opt, {
-			form: { value: value }
-		}
+		@set key, value, options, callback
 
-		if extraopts?
-			_.extend opt.form, extraopts
-
-		@_postRedirectHandler opt, @_responseHandler callback
-
-	# Delete given key
-	del: (key, callback) ->
-		opt = @_prepareOpts "keys/" + @_stripSlashPrefix(key)
-		request.del opt, @_responseHandler callback
+	testAndSet: @::compareAndSwap
 
 	# Watch for value changes on a key
-	watch: (key, callback) ->
-		opt = @_prepareOpts "watch/" + @_stripSlashPrefix(key)
-		request.get opt, @_responseHandler callback
+	watch: (key, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		options ?= {}
+		options.wait = true
+
+		@get key, options, callback
 
 	# Watch for value changes on a key since a specific index
-	watchIndex: (key, index, callback) ->
-		@watchCustom key, {index: index}, callback
+	watchIndex: (key, index, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		options ?= {}
+		options.waitIndex = index
 
-	# Watch with custom options
-	watchCustom: (key, opts, callback) ->
-		opt = @_prepareOpts "watch/" + @_stripSlashPrefix(key)
-
-		_.extend opt, {
-			form: opts
-		} if opts?
-
-		request.post opt, @_responseHandler callback
+		@watch key, options, callback
 
 	# Returns an eventemitter that watches a key, emits 'change' on value change
 	# or 'reconnect' when trying to recover from errors.
@@ -94,7 +115,7 @@ class Etcd
 
 	# Get version of etcd
 	version: (callback) ->
-		opt = @_prepareOpts "", ""
+		opt = @_prepareOpts "version", ""
 		request.get opt, @_responseHandler callback
 
 	# Strip the prefix slash if set
@@ -102,7 +123,7 @@ class Etcd
 		key.replace /^\//, ''
 
 	# Prepare request options
-	_prepareOpts: (path, apiVersion = "/v1") ->
+	_prepareOpts: (path, apiVersion = "/v2", value = null, queryString = null) ->
 		protocol = "http"
 
 		# Set up HttpsAgent if sslopts {ca, key, cert} are given
@@ -115,6 +136,8 @@ class Etcd
 			url: "#{protocol}://#{@host}:#{@port}#{apiVersion}/#{path}"
 			json: true
 			agent: httpsagent if httpsagent?
+			qs: queryString if queryString?
+			form: { value: value } if value?
 		}
 
 	# Response handler for request
@@ -126,16 +149,22 @@ class Etcd
 				callback err, body
 
 	# This is a workaround for issue #556 in the request library
-	# 307 redirects are changed from POST to GET
+	# 307 redirects are changed from POST/PUT/DEL to GET
 	# https://github.com/mikeal/request/pull/556
-	_postRedirectHandler: (opt, callback) ->
-		request.post opt, (err, resp, body) =>
+	_redirectHandler: (req, opt, callback) ->
+		req opt, (err, resp, body) =>
 			# Follow if we get a 307 redirect to leader
 			if resp and resp.statusCode is 307 and resp.headers.location?
 				opt.url = resp.headers.location
-				@_postRedirectHandler opt, callback
+				@_redirectHandler req, opt, callback
 			else
 				callback err, resp, body
 
+	# Swap callback and options if no options was given.
+	_argParser: (options, callback) ->
+		if typeof options is 'function'
+			[{}, options]
+		else
+			[options, callback]
 
 exports = module.exports = Etcd

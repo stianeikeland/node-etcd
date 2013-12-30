@@ -17,7 +17,7 @@ describe 'Utility', () ->
 		it 'should return default request options', () ->
 			etcd._prepareOpts('keypath/key').should.include {
 				json: true
-				url: 'http://127.0.0.1:4001/v1/keypath/key'
+				url: 'http://127.0.0.1:4001/v2/keypath/key'
 			}
 
 	describe '#_responseHandler()', () ->
@@ -52,68 +52,105 @@ describe 'Basic functions', () ->
 	describe '#get()', () ->
 		it 'should return entry from etcd', (done) ->
 			getNock()
-				.get('/v1/keys/key')
+				.get('/v2/keys/key')
 				.reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
 			etcd.get 'key', checkVal done
 
-	describe '#set()', () ->
-		it 'should post key=value to etcd', (done) ->
+		it 'should send options to etcd as request url', (done) ->
 			getNock()
-				.post('/v1/keys/key', { value: "value" })
+				.get('/v2/keys/key?recursive=true')
+				.reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
+			etcd.get 'key', { recursive: true }, checkVal done
+
+	describe '#set()', () ->
+		it 'should put to etcd', (done) ->
+			getNock()
+				.put('/v2/keys/key', { value: "value" })
 				.reply(200, '{"action":"SET","key":"/key","prevValue":"value","value":"value","index":1}')
 			etcd.set 'key', 'value', checkVal done
+
+		it 'should send options to etcd as request url', (done) ->
+			getNock()
+				.put('/v2/keys/key?prevValue=oldvalue', { value: "value"})
+				.reply(200, '{"action":"SET","key":"/key","prevValue":"oldvalue","value":"value","index":1}')
+			etcd.set 'key', 'value', { prevValue: "oldvalue" }, checkVal done
 
 		it 'should follow 307 redirects', (done) ->
 			(nock 'http://127.0.0.1:4002')
-				.post('/v1/keys/key', { value: "value" })
+				.put('/v2/keys/key', { value: "value" })
 				.reply(200, '{"action":"SET","key":"/key","prevValue":"value","value":"value","index":1}')
 
 			(nock 'http://127.0.0.1:4001')
-				.post('/v1/keys/key', { value: "value" })
-				.reply(307, "", { location: "http://127.0.0.1:4002/v1/keys/key" })
+				.put('/v2/keys/key', { value: "value" })
+				.reply(307, "", { location: "http://127.0.0.1:4002/v2/keys/key" })
 
 			etcd.set 'key', 'value', checkVal done
 
-	describe '#setTest()', () ->
-		it 'should set key=value with prevValue as formdata', (done) ->
+	describe '#testAndSet()', () ->
+		it 'should set using prevValue', (done) ->
 			getNock()
-				.post('/v1/keys/key', { value: "new", prevValue: "old" })
-				.reply(200, '{"action":"SET","key":"/key","prevValue":"prev","value":"value","index":1}')
-			etcd.setTest 'key', 'new', 'old', checkVal done
+				.put('/v2/keys/key?prevValue=oldvalue', { value: "value"})
+				.reply(200, '{"action":"SET","key":"/key","prevValue":"oldvalue","value":"value","index":1}')
+			etcd.testAndSet 'key', 'value', 'oldvalue', checkVal done
+
+	describe '#mkdir()', () ->
+		it 'should create directory', (done) ->
+			getNock()
+				.put('/v2/keys/key?dir=true')
+				.reply(200, '{"action":"create","node":{"key":"/key","dir":true,"modifiedIndex":1,"createdIndex":1}}')
+			etcd.mkdir 'key', (err, val) ->
+				val.should.include {action: "create"}
+				val.node.should.include {key: "/key"}
+				val.node.should.include {dir: true}
+				done()
+
+	describe '#rmdir()', () ->
+		it 'should remove directory', (done) ->
+			getNock().delete('/v2/keys/key?dir=true').reply(200)
+			etcd.rmdir 'key', done
 
 	describe '#del()', () ->
 		it 'should delete a given key in etcd', (done) ->
-			getNock().delete('/v1/keys/key').reply(200)
+			getNock().delete('/v2/keys/key').reply(200)
 			etcd.del 'key', done
 
 	describe '#watch()', () ->
-		it 'should ask etcd to watch a given key', (done) ->
-			getNock().get('/v1/watch/key').reply(200, {"action":"SET","key":"/key","value":"value","newKey":true,"index":2})
+		it 'should do a get with wait=true', (done) ->
+			getNock()
+				.get('/v2/keys/key?wait=true')
+				.reply(200, '{"action":"set","key":"/key","value":"value","modifiedIndex":7}')
 			etcd.watch 'key', checkVal done
+
+	describe '#watchIndex()', () ->
+		it 'should do a get with wait=true and waitIndex=x', (done) ->
+			getNock()
+				.get('/v2/keys/key?waitIndex=1&wait=true')
+				.reply(200, '{"action":"set","key":"/key","value":"value","modifiedIndex":7}')
+			etcd.watchIndex 'key', 1, checkVal done
 
 	describe '#machines()', () ->
 		it 'should ask etcd for connected machines', (done) ->
-			getNock().get('/v1/keys/_etcd/machines').reply(200, '{"value":"value"}')
+			getNock().get('/v2/keys/_etcd/machines').reply(200, '{"value":"value"}')
 			etcd.machines checkVal done
 
 	describe '#leader()', () ->
 		it 'should ask etcd for leader', (done) ->
-			getNock().get('/v1/leader').reply(200, '{"value":"value"}')
+			getNock().get('/v2/leader').reply(200, '{"value":"value"}')
 			etcd.leader checkVal done
 
 	describe '#leaderStats()', () ->
 		it 'should ask etcd for statistics for leader', (done) ->
-			getNock().get('/v1/stats/leader').reply(200, '{"value":"value"}')
+			getNock().get('/v2/stats/leader').reply(200, '{"value":"value"}')
 			etcd.leaderStats checkVal done
 
 	describe '#selfStats()', () ->
 		it 'should ask etcd for statistics for connected server', (done) ->
-			getNock().get('/v1/stats/self').reply(200, '{"value":"value"}')
+			getNock().get('/v2/stats/self').reply(200, '{"value":"value"}')
 			etcd.selfStats checkVal done
 
 	describe '#version()', () ->
 		it 'should ask etcd for version', (done) ->
-			getNock().get('/').reply(200, 'etcd v0.1.0-8-gaad1626')
+			getNock().get('/version').reply(200, 'etcd v0.1.0-8-gaad1626')
 			etcd.version (err, val) ->
 				val.should.equal 'etcd v0.1.0-8-gaad1626'
 				done err, val

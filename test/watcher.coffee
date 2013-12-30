@@ -23,10 +23,10 @@ describe 'Watcher', () ->
 		w = new Watcher etcd, 'key'
 
 		w.on 'change', (val) ->
-			val.should.include { index: 0 }
+			val.should.include { node: { modifiedIndex: 0 } }
 			done()
 
-		etcd.change null, { index: 0 }
+		etcd.change null, { node: { modifiedIndex: 0 } }
 
 	it 'should emit reconnect event on error', (done) ->
 		etcd = new FakeEtcd
@@ -65,6 +65,6 @@ describe 'Watcher', () ->
 			index.should.equal i + 1
 			done()
 
-		etcd.change null, { index: i }
+		etcd.change null, { node: { modifiedIndex: i } }
 
 
