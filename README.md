@@ -20,7 +20,7 @@ $ npm install node-etcd --tag beta
 
 ## Changes
 
-- 2.0.2 - Mkdir and rmdir.
+- 2.0.2 - Mkdir and rmdir. Fix watcher for v2 api.
 - 2.0.1 - Watch, delete and stats now use new v2 api. Added testAndSet convenience method.
 - 2.0.0 - Basic support for etcd protocol v2. set, get, del now supports options.
 - 0.6.0 - Watcher now emits 'error' on invalid responses.
