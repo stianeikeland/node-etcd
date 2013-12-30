@@ -9,15 +9,15 @@
 #
 class Watcher extends EventEmitter
 
-	constructor: (@etcd, @key, @index = null) ->
+	constructor: (@etcd, @key, @index = null, @options = {}) ->
 		@retryAttempts = 0
 		@_watch()
 
 	_watch: () =>
 		if @index is null
-			@etcd.watch @key, @_respHandler
+			@etcd.watch @key, @options, @_respHandler
 		else
-			@etcd.watchIndex @key, @index, @_respHandler
+			@etcd.watchIndex @key, @index, @options, @_respHandler
 
 	_respHandler: (err, val) =>
 		if val?.node?.modifiedIndex?

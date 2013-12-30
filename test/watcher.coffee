@@ -5,11 +5,11 @@ class FakeEtcd
 	constructor: () ->
 		@cb = () ->
 
-	watch: (key, cb) ->
+	watch: (key, options, cb) ->
 		key.should.equal 'key'
 		@cb = cb
 
-	watchIndex: (key, index, cb) ->
+	watchIndex: (key, index, options, cb) ->
 		key.should.equal 'key'
 		@cb = cb
 
@@ -44,6 +44,15 @@ describe 'Watcher', () ->
 		w.on 'error', () -> done()
 
 		etcd.change null, 'invalid content'
+
+	it 'should use provided options', (done) ->
+		etcd = new FakeEtcd
+
+		etcd.watch = (key, opt, cb) ->
+			opt.should.include { recursive: true }
+			done()
+
+		w = new Watcher etcd, 'key', null, { recursive: true }
 
 	it 'should reconnect (call watch again) on error', (done) ->
 		etcd = new FakeEtcd

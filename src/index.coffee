@@ -90,8 +90,8 @@ class Etcd
 
 	# Returns an eventemitter that watches a key, emits 'change' on value change
 	# or 'reconnect' when trying to recover from errors.
-	watcher: (key, index = null) =>
-		return new Watcher this, key, index
+	watcher: (key, index = null, options = {}) =>
+		return new Watcher this, key, index, options
 
 	# Get the etcd cluster machines
 	machines: (callback) ->
