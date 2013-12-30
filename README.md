@@ -59,6 +59,7 @@ etcd.set("key", "value", { ttl: 60 }, console.log);
 ```
 
 Available options include:
+
 - `ttl` (time to live in seconds)
 - `prevValue` (previous value, for compare and swap)
 - `prevExist` (existance test, for compare and swap)
@@ -87,6 +88,7 @@ etcd.get("key", { recursive: true }, console.log);
 ```
 
 Available options include:
+
 - `recursive` (bool, list all values in directory recursively)
 - `wait` (bool, wait for changes to key)
 - `waitIndex` (wait for changes after given index)
@@ -102,6 +104,7 @@ etcd.del("key/", { recursive: true }, console.log);
 ```
 
 Available options include:
+
 - `recursive` (bool, delete recursively)
 
 Alias: `.delete()`
@@ -127,6 +130,7 @@ etcd.rmdir("dir/", { recursive: true }, console.log);
 ```
 
 Available options include:
+
 - `recursive` (bool, delete recursively)
 
 ### .watch(key, [options], [callback])
