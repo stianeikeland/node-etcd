@@ -38,8 +38,7 @@ class Etcd
 		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", null, options
 		@_redirectHandler request.del, opt, @_responseHandler callback
 
-	delete: (key, options, callback) ->
-		@del key, options, callback
+	delete: @::del
 
 	# Make a directory
 	# Usage:
@@ -71,9 +70,7 @@ class Etcd
 
 		@set key, value, options, callback
 
-	testAndSet: (key, value, oldvalue, options, callback) ->
-		@compareAndSwap key, value, oldvalue, options, callback
-
+	testAndSet: @::compareAndSwap
 
 	# Watch for value changes on a key
 	watch: (key, options, callback) ->
