@@ -41,6 +41,24 @@ class Etcd
 	delete: (key, options, callback) ->
 		@del key, options, callback
 
+	# Make a directory
+	# Usage:
+	# 	.mkdir("dir", callback)
+	# 	.mkdir("dir", options, callback)
+	mkdir: (dir, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		options.dir = true
+		@set dir, null, options, callback
+
+	# Remove a directory
+	# Usage:
+	# 	.rmdir("dir", callback)
+	# 	.rmdir("dir", {recursive: true}, callback)
+	rmdir: (dir, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		options.dir = true
+		@del dir, options, callback
+
 	# Test and set value, convencience for set with {prevValue:'oldvalue'}
 	testAndSet: (key, value, oldvalue, options, callback) ->
 		[options, callback] = @_argParser options, callback
@@ -141,7 +159,7 @@ class Etcd
 	# Swap callback and options if no options was given.
 	_argParser: (options, callback) ->
 		if typeof options is 'function'
-			[null, options]
+			[{}, options]
 		else
 			[options, callback]
 

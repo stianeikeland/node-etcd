@@ -20,6 +20,7 @@ $ npm install node-etcd --tag beta
 
 ## Changes
 
+- 2.0.2 - Mkdir and rmdir.
 - 2.0.1 - Watch, delete and stats now use new v2 api. Added testAndSet convenience method.
 - 2.0.0 - Basic support for etcd protocol v2. set, get, del now supports options.
 - 0.6.0 - Watcher now emits 'error' on invalid responses.
@@ -99,6 +100,29 @@ Available options include:
 - `recursive` (bool, delete recursively)
 
 Alias: `.delete()`
+
+### .mkdir(dir, [options], [callback])
+
+Create a directory
+
+```javascript
+etcd.mkdir("dir");
+etcd.mkdir("dir", console.log);
+etcd.mkdir("dir/", options, console.log);
+```
+
+### .rmdir(dir, [options], [callback])
+
+Remove a directory
+
+```javascript
+etcd.rmdir("dir");
+etcd.rmdir("dir", console.log);
+etcd.rmdir("dir/", { recursive: true }, console.log);
+```
+
+Available options include:
+- `recursive` (bool, delete recursively)
 
 ### .watch(key, [options], [callback])
 

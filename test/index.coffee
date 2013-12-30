@@ -93,6 +93,22 @@ describe 'Basic functions', () ->
 				.reply(200, '{"action":"SET","key":"/key","prevValue":"oldvalue","value":"value","index":1}')
 			etcd.testAndSet 'key', 'value', 'oldvalue', checkVal done
 
+	describe '#mkdir()', () ->
+		it 'should create directory', (done) ->
+			getNock()
+				.put('/v2/keys/key?dir=true')
+				.reply(200, '{"action":"create","node":{"key":"/key","dir":true,"modifiedIndex":1,"createdIndex":1}}')
+			etcd.mkdir 'key', (err, val) ->
+				val.should.include {action: "create"}
+				val.node.should.include {key: "/key"}
+				val.node.should.include {dir: true}
+				done()
+
+	describe '#rmdir()', () ->
+		it 'should remove directory', (done) ->
+			getNock().delete('/v2/keys/key?dir=true').reply(200)
+			etcd.rmdir 'key', done
+
 	describe '#del()', () ->
 		it 'should delete a given key in etcd', (done) ->
 			getNock().delete('/v2/keys/key').reply(200)
