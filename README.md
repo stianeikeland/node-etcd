@@ -64,13 +64,16 @@ Available options include:
 
 Will create a directory when used without value (value=null): `etcd.set("directory/");`
 
-### .testAndSet(key, value, oldvalue, [options], [callback])
+### .compareAndSwap(key, value, oldvalue, [options], [callback])
 
 Convenience method for test and set (set with {prevValue: oldvalue})
 
 ```javascript
-etcd.testAndSet("key", "newvalue", "oldvalue");
+etcd.compareAndSwap("key", "newvalue", "oldvalue");
+etcd.compareAndSwap("key", "newValue", "oldValue", options, console.log);
 ```
+
+Alias: `.testAndSet()`
 
 ### .get(key, [options], [callback])
 

@@ -59,13 +59,20 @@ class Etcd
 		options.dir = true
 		@del dir, options, callback
 
-	# Test and set value, convencience for set with {prevValue:'oldvalue'}
-	testAndSet: (key, value, oldvalue, options, callback) ->
+	# Compare and swap value if unchanged
+	# Usage:
+	# 	.compareAndSwap("key", "newValue", "oldValue", callback)
+	# 	.compareAndSwap("key", "newValue", "oldValue", options, callback)
+	# 	.testAndSet("key", "newValue", "oldValue", options, callback)
+	compareAndSwap: (key, value, oldvalue, options, callback) ->
 		[options, callback] = @_argParser options, callback
 		options ?= {}
 		options.prevValue = oldvalue
 
 		@set key, value, options, callback
+
+	testAndSet: (key, value, oldvalue, options, callback) ->
+		@compareAndSwap key, value, oldvalue, options, callback
 
 
 	# Watch for value changes on a key
