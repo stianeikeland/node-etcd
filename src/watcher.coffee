@@ -20,9 +20,10 @@ class Watcher extends EventEmitter
 			@etcd.watchIndex @key, @index, @_respHandler
 
 	_respHandler: (err, val) =>
-		if val?.index?
+		console.log err, val
+		if val?.node?.modifiedIndex?
 			@retryAttempts = 0
-			@index = val.index + 1
+			@index = val.node.modifiedIndex + 1
 			@emit 'change', val
 			@_watch()
 		else if err isnt null
