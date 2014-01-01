@@ -13,8 +13,8 @@ class FakeEtcd
 		key.should.equal 'key'
 		@cb = cb
 
-	change: (err, val) ->
-		@cb err, val
+	change: (err, val, headers) ->
+		@cb err, val, (headers or {"x-etcd-index": "0"})
 
 
 describe 'Watcher', () ->
@@ -43,7 +43,7 @@ describe 'Watcher', () ->
 		w = new Watcher etcd, 'key'
 		w.on 'error', () -> done()
 
-		etcd.change null, 'invalid content'
+		etcd.change null, 'invalid content', {}
 
 	it 'should use provided options', (done) ->
 		etcd = new FakeEtcd
@@ -81,6 +81,6 @@ describe 'Watcher', () ->
 			index.should.equal i + 1
 			done()
 
-		etcd.change null, { node: { modifiedIndex: i } }
+		etcd.change null, { node: { modifiedIndex: i } }, { "x-etcd-index": "#{i}" }
 
 

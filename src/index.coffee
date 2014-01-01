@@ -144,9 +144,9 @@ class Etcd
 	_responseHandler: (callback) ->
 		(err, resp, body) ->
 			if body? and body.errorCode?
-				callback body, ""
+				callback body, "", (resp.headers or {})
 			else
-				callback err, body
+				callback err, body, (resp.headers or {})
 
 	# This is a workaround for issue #556 in the request library
 	# 307 redirects are changed from POST/PUT/DEL to GET

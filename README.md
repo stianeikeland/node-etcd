@@ -21,6 +21,7 @@ $ npm install node-etcd@0.6.1
 
 ## Changes
 
+- 2.0.4 - Use 'x-etcd-index' for index when watching a key.
 - 2.0.3 - Watcher supports options. Watcher emits etcd action type.
 - 2.0.2 - Mkdir and rmdir. Fix watcher for v2 api.
 - 2.0.1 - Watch, delete and stats now use new v2 api. Added testAndSet convenience method.
