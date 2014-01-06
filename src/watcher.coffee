@@ -26,9 +26,9 @@ class Watcher extends EventEmitter
 			@emit 'reconnect', { error: err, reconnectcount: @retryAttempts }
 			@_retry()
 
-		else if val? and headers?['x-etcd-index']?
+		else if val?.node?.modifiedIndex?
 			@retryAttempts = 0
-			@index = parseInt(headers['x-etcd-index']) + 1
+			@index = val.node.modifiedIndex + 1
 			@emit 'change', val, headers
 			@emit val.action, val, headers if val.action?
 			@_watch()
