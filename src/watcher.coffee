@@ -28,7 +28,7 @@ class Watcher extends EventEmitter
 
 		else if val? and headers?['x-etcd-index']?
 			@retryAttempts = 0
-			@index = parseInt(val.node.modifiedIndex) + 1
+			@index = val.node.modifiedIndex + 1
 			@emit 'change', val, headers
 			@emit val.action, val, headers if val.action?
 			@_watch()
