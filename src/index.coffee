@@ -17,7 +17,8 @@ class Etcd
 	set: (key, value, options, callback) ->
 		[options, callback] = @_argParser options, callback
 		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", value, options
-		@_redirectHandler request.put, opt, @_responseHandler callback
+		requestMethod = if options?.method is 'post' then request.post else request.put
+		@_redirectHandler requestMethod, opt, @_responseHandler callback
 
 	# Get value of key
 	# Usage:
