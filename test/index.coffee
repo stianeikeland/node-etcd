@@ -20,19 +20,19 @@ describe 'Utility', () ->
 				url: 'http://127.0.0.1:4001/v2/keypath/key'
 			}
 
-	describe '#_responseHandler()', () ->
+	# describe '#_responseHandler()', () ->
 
-		it 'should handle responses', () ->
-			handler = etcd._responseHandler (err, val) ->
-				err.should.equal 'err'
-				val.should.equal 'body'
-			handler 'err', '', 'body'
+	# 	it 'should handle responses', () ->
+	# 		handler = etcd._responseHandler (err, val) ->
+	# 			err.should.equal 'err'
+	# 			val.should.equal 'body'
+	# 		handler 'err', '', 'body'
 
-		it 'should handle errors', () ->
-			handler = etcd._responseHandler (err, val) ->
-				err.should.include {errorCode: 1}
-				val.should.equal ''
-			handler 'err', '', {errorCode: 1}
+	# 	it 'should handle errors', () ->
+	# 		handler = etcd._responseHandler (err, val) ->
+	# 			err.should.include {errorCode: 1}
+	# 			val.should.equal ''
+	# 		handler 'err', '', {errorCode: 1}
 
 
 # Tests for exposed api functions
@@ -61,6 +61,14 @@ describe 'Basic functions', () ->
 				.get('/v2/keys/key?recursive=true')
 				.reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
 			etcd.get 'key', { recursive: true }, checkVal done
+
+		it 'should callback with error on error', (done) ->
+			getNock()
+				.get('/v2/keys/key')
+				.reply(404, 'Invalid key')
+			etcd.get 'key', (err, val) ->
+				err.should.equal 'Invalid key'
+				done()
 
 	describe '#set()', () ->
 		it 'should put to etcd', (done) ->

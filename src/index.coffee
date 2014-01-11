@@ -1,6 +1,6 @@
-request = require 'request'
 _       = require 'underscore'
 Watcher = require './watcher'
+Client = require './client'
 HttpsAgent = (require 'https').Agent
 
 # Etcd client for etcd protocol version 2
@@ -8,7 +8,8 @@ class Etcd
 
 	# Constructor, set etcd host and port.
 	# For https: provide {ca, crt, key} as sslopts.
-	constructor: (@host = '127.0.0.1', @port = '4001', @sslopts = null) ->
+	constructor: (@host = '127.0.0.1', @port = '4001', @sslopts = null, @client = null) ->
+		@client ?= new Client(@sslopts)
 
 	# Set key to value
 	# Usage:
@@ -17,7 +18,7 @@ class Etcd
 	set: (key, value, options, callback) ->
 		[options, callback] = @_argParser options, callback
 		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", value, options
-		@_redirectHandler request.put, opt, @_responseHandler callback
+		@client.put opt, callback
 
 	# Get value of key
 	# Usage:
@@ -26,7 +27,7 @@ class Etcd
 	get: (key, options, callback) ->
 		[options, callback] = @_argParser options, callback
 		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", null, options
-		request.get opt, @_responseHandler callback
+		@client.get opt, callback
 
 	# Delete a key
 	# Usage:
@@ -36,7 +37,7 @@ class Etcd
 	del: (key, options, callback) ->
 		[options, callback] = @_argParser options, callback
 		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", null, options
-		@_redirectHandler request.del, opt, @_responseHandler callback
+		@client.delete opt, callback
 
 	delete: @::del
 
@@ -96,27 +97,28 @@ class Etcd
 	# Get the etcd cluster machines
 	machines: (callback) ->
 		opt = @_prepareOpts "keys/_etcd/machines"
-		request.get opt, @_responseHandler callback
+		@client.get opt, callback
 
 	# Get the current cluster leader
 	leader: (callback) ->
 		opt = @_prepareOpts "leader"
-		request.get opt, @_responseHandler callback
+		@client.get opt, callback
 
 	# Get statistics about the leader
 	leaderStats: (callback) ->
 		opt = @_prepareOpts "stats/leader"
-		request.get opt, @_responseHandler callback
+		@client.get opt, callback
 
 	# Get statistics about the currently connected entity
 	selfStats: (callback) ->
 		opt = @_prepareOpts "stats/self"
-		request.get opt, @_responseHandler callback
+		@client.get opt, callback
 
 	# Get version of etcd
 	version: (callback) ->
 		opt = @_prepareOpts "version", ""
-		request.get opt, @_responseHandler callback
+		@client.get opt, callback
+
 
 	# Strip the prefix slash if set
 	_stripSlashPrefix: (key) ->
@@ -139,26 +141,6 @@ class Etcd
 			qs: queryString if queryString?
 			form: { value: value } if value?
 		}
-
-	# Response handler for request
-	_responseHandler: (callback) ->
-		(err, resp, body) ->
-			if body? and body.errorCode?
-				callback body, "", (resp.headers or {})
-			else
-				callback err, body, (resp.headers or {})
-
-	# This is a workaround for issue #556 in the request library
-	# 307 redirects are changed from POST/PUT/DEL to GET
-	# https://github.com/mikeal/request/pull/556
-	_redirectHandler: (req, opt, callback) ->
-		req opt, (err, resp, body) =>
-			# Follow if we get a 307 redirect to leader
-			if resp and resp.statusCode is 307 and resp.headers.location?
-				opt.url = resp.headers.location
-				@_redirectHandler req, opt, callback
-			else
-				callback err, resp, body
 
 	# Swap callback and options if no options was given.
 	_argParser: (options, callback) ->
