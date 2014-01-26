@@ -34,7 +34,7 @@ class Client
 
 	_handleResponse: (err, resp, body, callback) ->
 		if err or resp.statusCode isnt 200
-			callback body, "", (resp.headers or {})
+			callback body, "", (resp?.headers or {})
 		else
 			callback err, body, (resp.headers or {})
 
