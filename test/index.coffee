@@ -20,23 +20,6 @@ describe 'Utility', () ->
 				url: 'http://127.0.0.1:4001/v2/keypath/key'
 			}
 
-	# describe '#_responseHandler()', () ->
-
-	# 	it 'should handle responses', () ->
-	# 		handler = etcd._responseHandler (err, val) ->
-	# 			err.should.equal 'err'
-	# 			val.should.equal 'body'
-	# 		handler 'err', '', 'body'
-
-	# 	it 'should handle errors', () ->
-	# 		handler = etcd._responseHandler (err, val) ->
-	# 			err.should.include {errorCode: 1}
-	# 			val.should.equal ''
-	# 		handler 'err', '', {errorCode: 1}
-
-
-# Tests for exposed api functions
-
 describe 'Basic functions', () ->
 
 	etcd = new Etcd
@@ -65,9 +48,10 @@ describe 'Basic functions', () ->
 		it 'should callback with error on error', (done) ->
 			getNock()
 				.get('/v2/keys/key')
-				.reply(404, 'Invalid key')
+				.reply(404, {"errorCode": 100, "message": "Key not found"})
 			etcd.get 'key', (err, val) ->
-				err.should.equal 'Invalid key'
+				err.errorCode.should.equal 100
+				err.message.should.equal "Key not found"
 				done()
 
 	describe '#set()', () ->

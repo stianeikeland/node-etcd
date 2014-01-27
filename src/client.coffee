@@ -33,10 +33,10 @@ class Client
 		@execute method, opt, callback
 
 	_handleResponse: (err, resp, body, callback) ->
-		if err or resp.statusCode isnt 200
+		if body?.errorCode? # http ok, but etcd gave us an error
 			callback body, "", (resp?.headers or {})
 		else
-			callback err, body, (resp.headers or {})
+			callback err, body, (resp?.headers or {})
 
 
 exports = module.exports = Client
