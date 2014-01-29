@@ -21,6 +21,7 @@ $ npm install node-etcd@0.6.1
 
 ## Changes
 
+- 2.0.7 - Avoid calling callback if callback not given.
 - 2.0.6 - Refactoring, fix responsehandler error.
 - 2.0.5 - Undo use of 'x-etcd-index', this refers to global state.
 - 2.0.4 - Use 'x-etcd-index' for index when watching a key.
@@ -42,7 +43,7 @@ etcd.get("key", console.log);
 
 ## Methods
 
-### Etcd([host = 127.0.0.1], [port = '4001'], [ssloptions])
+### Etcd([host = '127.0.0.1'], [port = '4001'], [ssloptions])
 
 Create a new etcd client
 

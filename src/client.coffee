@@ -33,6 +33,7 @@ class Client
 		@execute method, opt, callback
 
 	_handleResponse: (err, resp, body, callback) ->
+		return if not callback?
 		if body?.errorCode? # http ok, but etcd gave us an error
 			callback body, "", (resp?.headers or {})
 		else

@@ -28,3 +28,6 @@ describe 'Client', () ->
 			client._handleResponse null, null, "data", (e, v, headers) ->
 				headers.should.be.an.Object
 				Object.keys(headers).should.be.empty
+
+		it 'should not fail if callback is not given', () ->
+			client._handleResponse null, 'resp', 'body'
