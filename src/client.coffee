@@ -25,7 +25,7 @@ class Client
 	# 307 redirects are changed from POST/PUT/DEL to GET
 	# https://github.com/mikeal/request/pull/556
 	_wasRedirected: (resp) ->
-		resp? and resp.statusCode is 307 and resp?.headers?.location?
+		resp?.statusCode? and resp.statusCode is 307 and resp?.headers?.location?
 
 	_handleRedirect: (method, redirectURL, options, callback) =>
 		opt = _.clone options
