@@ -18,7 +18,7 @@ class Watcher extends EventEmitter
 	stop: () =>
 		@stopped = true
 		@request.abort()
-		@emit 'stop', "Watcher for '#{key}' aborted."
+		@emit 'stop', "Watcher for '#{@key}' aborted."
 
 	_watch: () =>
 		if @index is null
