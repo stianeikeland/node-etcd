@@ -82,6 +82,18 @@ class Etcd
 
 	testAndSet: @::compareAndSwap
 
+	# Execute a raw etcd query
+	# Where method is one of: PUT, GET, POST, PATCH, DELETE
+	#
+	# Usage:
+	# 	.raw("METHOD", "path", "value", options, callback)
+	# 	.raw("GET", "v2/stats/leader", null, {}, callback)
+	# 	.raw("PUT", "v2/keys/key", "value", {}, callback)
+	raw: (method, key, value, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		opt = @_prepareOpts key, "", value, options
+		@client.execute method, opt, callback
+
 	# Watch for value changes on a key
 	watch: (key, options, callback) ->
 		[options, callback] = @_argParser options, callback
@@ -102,6 +114,7 @@ class Etcd
 	# or 'reconnect' when trying to recover from errors.
 	watcher: (key, index = null, options = {}) =>
 		return new Watcher this, key, index, options
+
 
 	# Get the etcd cluster machines
 	machines: (callback) ->

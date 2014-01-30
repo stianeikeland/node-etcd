@@ -181,6 +181,18 @@ Signals:
 - `error` - emitted on invalid content
 - `<etcd action>` - the etcd action that triggered the watcher (ex: set, delete).
 
+### .raw(method, key, value, options, callback)
+
+Bypass the API and do raw queries.
+Method must be one of: PUT, GET, POST, PATCH, DELETE
+
+```javascript
+etcd.raw("GET", "v2/stats/leader", null, {}, callback)
+etcd.raw("PUT", "v2/keys/key", "value", {}, callback)
+```
+
+Remember to provide the full path, without any leading '/'
+
 ### .machines(callback)
 
 Returns information about etcd nodes in the cluster

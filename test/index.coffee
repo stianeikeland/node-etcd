@@ -130,7 +130,20 @@ describe 'Basic functions', () ->
 				.reply(200, '{"action":"set","key":"/key","value":"value","modifiedIndex":7}')
 			etcd.watchIndex 'key', 1, checkVal done
 
-	# describe '#raw()', ()
+	describe '#raw()', () ->
+		it 'should use provided method', (done) ->
+			getNock().patch('/key').reply(200, 'ok')
+			etcd.raw 'PATCH', 'key', null, {}, done
+
+		it 'should send provided value', (done) ->
+			getNock().post('/key', { value: "value" }).reply(200, 'ok')
+			etcd.raw 'POST', 'key', "value", {}, done
+
+		it 'should call cb on value from etcd', (done) ->
+			getNock().get('/key').reply(200, 'value')
+			etcd.raw 'GET', 'key', null, {}, (err, val) ->
+				val.should.equal 'value'
+				done err, val
 
 	describe '#machines()', () ->
 		it 'should ask etcd for connected machines', (done) ->
