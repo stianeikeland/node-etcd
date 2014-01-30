@@ -138,6 +138,15 @@ Available options include:
 
 - `recursive` (bool, delete recursively)
 
+### .create(path, value, [options], [callback])
+
+Atomically create in-order keys.
+
+```javascript
+etcd.create("queue", "first")
+etcd.create("queue", "next", console.log)
+```
+
 ### .watch(key, [options], [callback])
 
 This is a convenience method for get with `{wait: true}`.

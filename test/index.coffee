@@ -78,6 +78,16 @@ describe 'Basic functions', () ->
 
 			etcd.set 'key', 'value', checkVal done
 
+	describe '#create()', () ->
+		it 'should post value to dir', (done) ->
+			getNock()
+				.post('/v2/keys/dir', { value: "value" })
+				.reply(200, '{"action":"create", "node":{"key":"/dir/2"}}')
+
+			etcd.create 'dir', 'value', (err, val) ->
+				val.should.include { action: "create" }
+				done err, val
+
 	describe '#testAndSet()', () ->
 		it 'should set using prevValue', (done) ->
 			getNock()
@@ -119,6 +129,8 @@ describe 'Basic functions', () ->
 				.get('/v2/keys/key?waitIndex=1&wait=true')
 				.reply(200, '{"action":"set","key":"/key","value":"value","modifiedIndex":7}')
 			etcd.watchIndex 'key', 1, checkVal done
+
+	# describe '#raw()', ()
 
 	describe '#machines()', () ->
 		it 'should ask etcd for connected machines', (done) ->

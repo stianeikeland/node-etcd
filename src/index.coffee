@@ -29,6 +29,15 @@ class Etcd
 		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", null, options
 		@client.get opt, callback
 
+	# Create a key (atomic in order)
+	# Usage:
+	# 	.create("path", "value", callback)
+	# 	.create("path", "value", options, callback)
+	create: (dir, value, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix dir), "/v2", value, options
+		@client.post opt, callback
+
 	# Delete a key
 	# Usage:
 	# 	.del("key", callback)
