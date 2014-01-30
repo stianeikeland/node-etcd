@@ -3,15 +3,20 @@ Watcher = require '../src/watcher.coffee'
 
 class FakeEtcd
 	constructor: () ->
+		@stopped = false
 		@cb = () ->
+
+	abort: -> {abort: => @stopped = true}
 
 	watch: (key, options, cb) ->
 		key.should.equal 'key'
 		@cb = cb
+		return @abort()
 
 	watchIndex: (key, index, options, cb) ->
 		key.should.equal 'key'
 		@cb = cb
+		return @abort()
 
 	change: (err, val) ->
 		@cb err, val
@@ -82,5 +87,19 @@ describe 'Watcher', () ->
 			done()
 
 		etcd.change null, { node: { modifiedIndex: i } }
+
+	it 'should abort request when stop is called', () ->
+		etcd = new FakeEtcd
+		w = new Watcher etcd, 'key'
+
+		w.stop()
+		etcd.stopped.should.be.true
+
+	it 'should emit stop when stopped', (done) ->
+		etcd = new FakeEtcd
+		w = new Watcher etcd, 'key'
+
+		w.on 'stop', -> done()
+		w.stop()
 
 

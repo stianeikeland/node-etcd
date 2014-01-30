@@ -11,11 +11,14 @@
 class Watcher extends EventEmitter
 
 	constructor: (@etcd, @key, @index = null, @options = {}) ->
+		@stopped = false
 		@retryAttempts = 0
 		@_watch()
 
 	stop: () =>
+		@stopped = true
 		@request.abort()
+		@emit 'stop', "Watcher for '#{key}' aborted."
 
 	_watch: () =>
 		if @index is null
@@ -24,6 +27,8 @@ class Watcher extends EventEmitter
 			@request = @etcd.watchIndex @key, @index, @options, @_respHandler
 
 	_respHandler: (err, val, headers) =>
+
+		return if @stopped
 
 		if err
 			@emit 'reconnect', { error: err, reconnectcount: @retryAttempts }
