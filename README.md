@@ -21,6 +21,7 @@ $ npm install node-etcd@0.6.1
 
 ## Changes
 
+- 2.0.8 - Watchers can be canceled. In-order keys using #create(). Raw requests using #raw().
 - 2.0.7 - Avoid calling callback if callback not given.
 - 2.0.6 - Refactoring, fix responsehandler error.
 - 2.0.5 - Undo use of 'x-etcd-index', this refers to global state.
@@ -175,11 +176,14 @@ watcher2 = etcd.watcher("key", null, {recursive: true});
 watcher2.on("error", console.log);
 ```
 
+You can cancel a watcher by calling `.stop()`.
+
 Signals:
 - `change` - emitted on value change
 - `reconnect` - emitted on reconnect
 - `error` - emitted on invalid content
 - `<etcd action>` - the etcd action that triggered the watcher (ex: set, delete).
+- `stop` - watcher was canceled.
 
 ### .raw(method, key, value, options, callback)
 
