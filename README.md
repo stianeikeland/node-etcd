@@ -138,6 +138,15 @@ Available options include:
 
 - `recursive` (bool, delete recursively)
 
+### .create(path, value, [options], [callback])
+
+Atomically create in-order keys.
+
+```javascript
+etcd.create("queue", "first")
+etcd.create("queue", "next", console.log)
+```
+
 ### .watch(key, [options], [callback])
 
 This is a convenience method for get with `{wait: true}`.
@@ -171,6 +180,18 @@ Signals:
 - `reconnect` - emitted on reconnect
 - `error` - emitted on invalid content
 - `<etcd action>` - the etcd action that triggered the watcher (ex: set, delete).
+
+### .raw(method, key, value, options, callback)
+
+Bypass the API and do raw queries.
+Method must be one of: PUT, GET, POST, PATCH, DELETE
+
+```javascript
+etcd.raw("GET", "v2/stats/leader", null, {}, callback)
+etcd.raw("PUT", "v2/keys/key", "value", {}, callback)
+```
+
+Remember to provide the full path, without any leading '/'
 
 ### .machines(callback)
 

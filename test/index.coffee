@@ -78,6 +78,16 @@ describe 'Basic functions', () ->
 
 			etcd.set 'key', 'value', checkVal done
 
+	describe '#create()', () ->
+		it 'should post value to dir', (done) ->
+			getNock()
+				.post('/v2/keys/dir', { value: "value" })
+				.reply(200, '{"action":"create", "node":{"key":"/dir/2"}}')
+
+			etcd.create 'dir', 'value', (err, val) ->
+				val.should.include { action: "create" }
+				done err, val
+
 	describe '#testAndSet()', () ->
 		it 'should set using prevValue', (done) ->
 			getNock()
@@ -119,6 +129,21 @@ describe 'Basic functions', () ->
 				.get('/v2/keys/key?waitIndex=1&wait=true')
 				.reply(200, '{"action":"set","key":"/key","value":"value","modifiedIndex":7}')
 			etcd.watchIndex 'key', 1, checkVal done
+
+	describe '#raw()', () ->
+		it 'should use provided method', (done) ->
+			getNock().patch('/key').reply(200, 'ok')
+			etcd.raw 'PATCH', 'key', null, {}, done
+
+		it 'should send provided value', (done) ->
+			getNock().post('/key', { value: "value" }).reply(200, 'ok')
+			etcd.raw 'POST', 'key', "value", {}, done
+
+		it 'should call cb on value from etcd', (done) ->
+			getNock().get('/key').reply(200, 'value')
+			etcd.raw 'GET', 'key', null, {}, (err, val) ->
+				val.should.equal 'value'
+				done err, val
 
 	describe '#machines()', () ->
 		it 'should ask etcd for connected machines', (done) ->
