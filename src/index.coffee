@@ -84,6 +84,18 @@ class Etcd
 
 	testAndSet: @::compareAndSwap
 
+	# Compare and delete if value is unchanged
+	# Usage:
+	# 	.compareAndDelete("key", "oldValue", options, callback)
+	compareAndDelete: (key, oldvalue, options, callback) ->
+		[options, callback] = @_argParser options, callback
+		options ?= {}
+		options.prevValue = oldvalue
+
+		@del key, options, callback
+
+	testAndDelete: @::compareAndDelete
+
 	# Execute a raw etcd query
 	# Where method is one of: PUT, GET, POST, PATCH, DELETE
 	#

@@ -94,12 +94,23 @@ describe 'Basic functions', () ->
 			etcd.post 'key', 'value', done
 
 
-	describe '#testAndSet()', () ->
+	describe '#compareAndSwap()', () ->
 		it 'should set using prevValue', (done) ->
 			getNock()
 				.put('/v2/keys/key?prevValue=oldvalue', { value: "value"})
 				.reply(200, '{"action":"SET","key":"/key","prevValue":"oldvalue","value":"value","index":1}')
-			etcd.testAndSet 'key', 'value', 'oldvalue', checkVal done
+			etcd.compareAndSwap 'key', 'value', 'oldvalue', checkVal done
+
+		it 'has alias testAndSet', ->
+			etcd.testAndSet.should.equal etcd.testAndSet
+
+	describe '#compareAndDelete', ->
+		it 'should delete using prevValue', (done) ->
+			getNock().delete('/v2/keys/key?prevValue=oldvalue').reply(200)
+			etcd.compareAndDelete 'key', 'oldvalue', done
+
+		it 'has alias testAndDelete', ->
+			etcd.compareAndDelete.should.equal etcd.testAndDelete
 
 	describe '#mkdir()', () ->
 		it 'should create directory', (done) ->
