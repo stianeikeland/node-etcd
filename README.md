@@ -21,6 +21,7 @@ $ npm install node-etcd@0.6.1
 
 ## Changes
 
+- 2.0.9 - Added .post() alias of .create()
 - 2.0.8 - Watchers can be canceled. In-order keys using #create(). Raw requests using #raw().
 - 2.0.7 - Avoid calling callback if callback not given.
 - 2.0.6 - Refactoring, fix responsehandler error.
@@ -147,6 +148,8 @@ Atomically create in-order keys.
 etcd.create("queue", "first")
 etcd.create("queue", "next", console.log)
 ```
+
+Alias: `.post()`
 
 ### .watch(key, [options], [callback])
 

@@ -88,6 +88,12 @@ describe 'Basic functions', () ->
 				val.should.include { action: "create" }
 				done err, val
 
+	describe '#post()', ->
+		it 'should post value to key', (done) ->
+			getNock().post('/v2/keys/key', { value: "value" }).reply(200)
+			etcd.post 'key', 'value', done
+
+
 	describe '#testAndSet()', () ->
 		it 'should set using prevValue', (done) ->
 			getNock()

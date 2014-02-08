@@ -38,6 +38,8 @@ class Etcd
 		opt = @_prepareOpts ("keys/" + @_stripSlashPrefix dir), "/v2", value, options
 		@client.post opt, callback
 
+	post: @::create
+
 	# Delete a key
 	# Usage:
 	# 	.del("key", callback)
