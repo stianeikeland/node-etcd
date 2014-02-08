@@ -2,9 +2,9 @@ require 'should'
 Watcher = require '../src/watcher.coffee'
 
 class FakeEtcd
-	constructor: () ->
+	constructor: ->
 		@stopped = false
-		@cb = () ->
+		@cb = ->
 
 	abort: -> {abort: => @stopped = true}
 
@@ -22,7 +22,7 @@ class FakeEtcd
 		@cb err, val
 
 
-describe 'Watcher', () ->
+describe 'Watcher', ->
 	it 'should emit change on watch change', (done) ->
 		etcd = new FakeEtcd
 		w = new Watcher etcd, 'key'
@@ -46,7 +46,7 @@ describe 'Watcher', () ->
 	it 'should emit error if received content is invalid', (done) ->
 		etcd = new FakeEtcd
 		w = new Watcher etcd, 'key'
-		w.on 'error', () -> done()
+		w.on 'error', -> done()
 
 		etcd.change null, 'invalid content', {}
 
@@ -88,7 +88,7 @@ describe 'Watcher', () ->
 
 		etcd.change null, { node: { modifiedIndex: i } }
 
-	it 'should abort request when stop is called', () ->
+	it 'should abort request when stop is called', ->
 		etcd = new FakeEtcd
 		w = new Watcher etcd, 'key'
 

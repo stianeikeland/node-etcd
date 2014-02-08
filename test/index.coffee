@@ -4,27 +4,27 @@ Etcd = require '../src/index.coffee'
 
 # Tests for utility functions
 
-describe 'Utility', () ->
+describe 'Utility', ->
 
 	etcd = new Etcd
 
-	describe '#_stripSlashPrefix()', () ->
-		it 'should strip prefix-/ from key', () ->
+	describe '#_stripSlashPrefix()', ->
+		it 'should strip prefix-/ from key', ->
 			etcd._stripSlashPrefix("/key/").should.equal("key/")
 			etcd._stripSlashPrefix("key/").should.equal("key/")
 
-	describe '#_prepareOpts()', () ->
-		it 'should return default request options', () ->
+	describe '#_prepareOpts()', ->
+		it 'should return default request options', ->
 			etcd._prepareOpts('keypath/key').should.include {
 				json: true
 				url: 'http://127.0.0.1:4001/v2/keypath/key'
 			}
 
-describe 'Basic functions', () ->
+describe 'Basic functions', ->
 
 	etcd = new Etcd
 
-	getNock = () ->
+	getNock = ->
 		nock 'http://127.0.0.1:4001'
 
 	checkVal = (done) ->
@@ -32,7 +32,7 @@ describe 'Basic functions', () ->
 			val.should.include { value: "value" }
 			done err, val
 
-	describe '#get()', () ->
+	describe '#get()', ->
 		it 'should return entry from etcd', (done) ->
 			getNock()
 				.get('/v2/keys/key')
@@ -54,7 +54,7 @@ describe 'Basic functions', () ->
 				err.message.should.equal "Key not found"
 				done()
 
-	describe '#set()', () ->
+	describe '#set()', ->
 		it 'should put to etcd', (done) ->
 			getNock()
 				.put('/v2/keys/key', { value: "value" })
@@ -78,7 +78,7 @@ describe 'Basic functions', () ->
 
 			etcd.set 'key', 'value', checkVal done
 
-	describe '#create()', () ->
+	describe '#create()', ->
 		it 'should post value to dir', (done) ->
 			getNock()
 				.post('/v2/keys/dir', { value: "value" })
@@ -94,7 +94,7 @@ describe 'Basic functions', () ->
 			etcd.post 'key', 'value', done
 
 
-	describe '#compareAndSwap()', () ->
+	describe '#compareAndSwap()', ->
 		it 'should set using prevValue', (done) ->
 			getNock()
 				.put('/v2/keys/key?prevValue=oldvalue', { value: "value"})
@@ -112,7 +112,7 @@ describe 'Basic functions', () ->
 		it 'has alias testAndDelete', ->
 			etcd.compareAndDelete.should.equal etcd.testAndDelete
 
-	describe '#mkdir()', () ->
+	describe '#mkdir()', ->
 		it 'should create directory', (done) ->
 			getNock()
 				.put('/v2/keys/key?dir=true')
@@ -123,31 +123,31 @@ describe 'Basic functions', () ->
 				val.node.should.include {dir: true}
 				done()
 
-	describe '#rmdir()', () ->
+	describe '#rmdir()', ->
 		it 'should remove directory', (done) ->
 			getNock().delete('/v2/keys/key?dir=true').reply(200)
 			etcd.rmdir 'key', done
 
-	describe '#del()', () ->
+	describe '#del()', ->
 		it 'should delete a given key in etcd', (done) ->
 			getNock().delete('/v2/keys/key').reply(200)
 			etcd.del 'key', done
 
-	describe '#watch()', () ->
+	describe '#watch()', ->
 		it 'should do a get with wait=true', (done) ->
 			getNock()
 				.get('/v2/keys/key?wait=true')
 				.reply(200, '{"action":"set","key":"/key","value":"value","modifiedIndex":7}')
 			etcd.watch 'key', checkVal done
 
-	describe '#watchIndex()', () ->
+	describe '#watchIndex()', ->
 		it 'should do a get with wait=true and waitIndex=x', (done) ->
 			getNock()
 				.get('/v2/keys/key?waitIndex=1&wait=true')
 				.reply(200, '{"action":"set","key":"/key","value":"value","modifiedIndex":7}')
 			etcd.watchIndex 'key', 1, checkVal done
 
-	describe '#raw()', () ->
+	describe '#raw()', ->
 		it 'should use provided method', (done) ->
 			getNock().patch('/key').reply(200, 'ok')
 			etcd.raw 'PATCH', 'key', null, {}, done
@@ -162,41 +162,41 @@ describe 'Basic functions', () ->
 				val.should.equal 'value'
 				done err, val
 
-	describe '#machines()', () ->
+	describe '#machines()', ->
 		it 'should ask etcd for connected machines', (done) ->
 			getNock().get('/v2/keys/_etcd/machines').reply(200, '{"value":"value"}')
 			etcd.machines checkVal done
 
-	describe '#leader()', () ->
+	describe '#leader()', ->
 		it 'should ask etcd for leader', (done) ->
 			getNock().get('/v2/leader').reply(200, '{"value":"value"}')
 			etcd.leader checkVal done
 
-	describe '#leaderStats()', () ->
+	describe '#leaderStats()', ->
 		it 'should ask etcd for statistics for leader', (done) ->
 			getNock().get('/v2/stats/leader').reply(200, '{"value":"value"}')
 			etcd.leaderStats checkVal done
 
-	describe '#selfStats()', () ->
+	describe '#selfStats()', ->
 		it 'should ask etcd for statistics for connected server', (done) ->
 			getNock().get('/v2/stats/self').reply(200, '{"value":"value"}')
 			etcd.selfStats checkVal done
 
-	describe '#version()', () ->
+	describe '#version()', ->
 		it 'should ask etcd for version', (done) ->
 			getNock().get('/version').reply(200, 'etcd v0.1.0-8-gaad1626')
 			etcd.version (err, val) ->
 				val.should.equal 'etcd v0.1.0-8-gaad1626'
 				done err, val
 
-describe 'SSL support', () ->
+describe 'SSL support', ->
 
-	it 'should use https url if sslopts is given', () ->
+	it 'should use https url if sslopts is given', ->
 		etcdssl = new Etcd 'localhost', '4001', {}
 		opt = etcdssl._prepareOpts 'path'
 		opt.url.should.match(/^https:.+$/)
 
-	it 'should create https.agent and set ca if ca is given', () ->
+	it 'should create https.agent and set ca if ca is given', ->
 		etcdsslca = new Etcd 'localhost', '4001', {ca: ['ca']}
 		opt = etcdsslca._prepareOpts 'path'
 		should.exist opt.agent
