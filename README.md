@@ -21,6 +21,7 @@ $ npm install node-etcd@0.6.1
 
 ## Changes
 
+- 2.0.10 - Fix error in documentation
 - 2.0.9 - Added .post() alias of .create(). Added .compareAndDelete() (for etcd v0.3.0)
 - 2.0.8 - Watchers can be canceled. In-order keys using #create(). Raw requests using #raw().
 - 2.0.7 - Avoid calling callback if callback not given.
@@ -116,7 +117,7 @@ Available options include:
 
 Alias: `.delete()`
 
-### .compareAndSwap(key, oldvalue, [options], [callback])
+### .compareAndDelete(key, oldvalue, [options], [callback])
 
 Convenience method for test and delete (delete with {prevValue: oldvalue})
 
