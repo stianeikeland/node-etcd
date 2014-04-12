@@ -50,7 +50,8 @@ describe 'Basic functions', ->
 				.get('/v2/keys/key')
 				.reply(404, {"errorCode": 100, "message": "Key not found"})
 			etcd.get 'key', (err, val) ->
-				err.errorCode.should.equal 100
+				err.should.be.instanceOf Error
+				err.error.errorCode.should.equal 100
 				err.message.should.equal "Key not found"
 				done()
 

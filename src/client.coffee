@@ -35,9 +35,16 @@ class Client
 	_handleResponse: (err, resp, body, callback) ->
 		return if not callback?
 		if body?.errorCode? # http ok, but etcd gave us an error
-			callback body, "", (resp?.headers or {})
+			error = new Error body?.message || 'Etcd error'
+			error.errorCode = body.errorCode
+			error.error = body
+			callback error, "", (resp?.headers or {})
+		else if err?
+			error = new Error 'HTTP error'
+			error.error = err
+			callback error, null, (resp?.headers or {})
 		else
-			callback err, body, (resp?.headers or {})
+			callback null, body, (resp?.headers or {})
 
 
 exports = module.exports = Client

@@ -10,11 +10,15 @@ describe 'Client', ->
 
 		it 'fails on http error', ->
 			client._handleResponse 'error', '', '', (err) ->
-				err.should.equal 'error'
+				err.error.should.equal 'error'
+
+		it 'should use error objects for errors', ->
+			client._handleResponse null, 'resp', {errorCode: 100}, (err) ->
+				err.should.be.an.instanceOf Error
 
 		it 'fails on etcd error', ->
 			client._handleResponse null, "resp", {errorCode: 100}, (err) ->
-				err.errorCode.should.equal 100
+				err.error.errorCode.should.equal 100
 
 		it 'succeeds on no errors', ->
 			client._handleResponse null, "resp", "data", (_, val) ->

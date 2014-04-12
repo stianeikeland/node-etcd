@@ -50,6 +50,15 @@ describe 'Watcher', ->
 
 		etcd.change null, 'invalid content', {}
 
+	it 'should emit error object on error', (done) ->
+		etcd = new FakeEtcd
+		w = new Watcher etcd, 'key'
+		w.on 'error', (err) ->
+			err.should.be.an.instanceOf Error
+			done()
+
+		etcd.change null, 'invalid content', {}
+
 	it 'should use provided options', (done) ->
 		etcd = new FakeEtcd
 

@@ -31,7 +31,10 @@ class Watcher extends EventEmitter
 		return if @stopped
 
 		if err
-			@emit 'reconnect', { error: err, reconnectcount: @retryAttempts }
+			error = new Error 'Connection error, reconnecting.'
+			error.error = err
+			error.reconnectCount = @retryAttempts
+			@emit 'reconnect', error
 			@_retry()
 
 		else if val?.node?.modifiedIndex?
@@ -42,7 +45,9 @@ class Watcher extends EventEmitter
 			@_watch()
 
 		else
-			@emit 'error', "Received unexpected response '#{val}'"
+			error = new Error 'Received unexpected response'
+			error.response = val;
+			@emit 'error', error
 			@_watch()
 
 	_retry: () =>
