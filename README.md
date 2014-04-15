@@ -21,7 +21,7 @@ $ npm install node-etcd@0.6.1
 
 ## Changes
 
-- TRUNK - Use proper error objects instead of strings for errors.
+- 2.1.0 - Use proper error objects instead of strings for errors.
 - 2.0.10 - Fix error in documentation
 - 2.0.9 - Added .post() alias of .create(). Added .compareAndDelete() (for etcd v0.3.0)
 - 2.0.8 - Watchers can be canceled. In-order keys using #create(). Raw requests using #raw().
