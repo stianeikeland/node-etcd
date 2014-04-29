@@ -8,6 +8,7 @@ class Client
 	execute: (method, options, callback) =>
 		options = _.clone options
 		options.method = method
+		options.pool = maxSockets: 100
 
 		request options, (err, resp, body) =>
 			if @_wasRedirected resp
