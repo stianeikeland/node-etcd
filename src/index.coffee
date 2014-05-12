@@ -8,8 +8,12 @@ class Etcd
 
   # Constructor, set etcd host and port.
   # For https: provide {ca, crt, key} as sslopts.
-  constructor: (@host = '127.0.0.1', @port = '4001', @sslopts = null, @client = null) ->
-    @client ?= new Client(@sslopts)
+  constructor: (host = '127.0.0.1', port = '4001', @sslopts = null, @client = null) ->
+
+    if _.isString(host) and _.isString(port)
+      @hosts = ["#{host}:#{port}"]
+
+    @client ?= new Client(@hosts, @sslopts)
 
   # Set key to value
   # Usage:
@@ -171,7 +175,8 @@ class Etcd
       _.extend httpsagent.options, @sslopts
 
     opt = {
-      url: "#{protocol}://#{@host}:#{@port}#{apiVersion}/#{path}"
+      path: "#{apiVersion}/#{path}"
+      protocol: protocol
       json: true
       agent: httpsagent if httpsagent?
       qs: queryString if queryString?

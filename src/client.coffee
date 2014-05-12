@@ -3,16 +3,19 @@ _       = require 'underscore'
 
 class Client
 
-  constructor: (@sslopts) ->
+  constructor: (@hosts, @sslopts) ->
 
   execute: (method, options, callback) =>
-    options = _.clone options
-    options.method = method
-    options.pool = maxSockets: 100
+    host = @hosts[0]
 
-    request options, (err, resp, body) =>
+    opt = _.clone options
+    opt.method = method
+    opt.url ?= "#{opt.protocol}://#{host}#{opt.path}"
+    opt.pool = maxSockets: 100
+
+    request opt, (err, resp, body) =>
       if @_wasRedirected resp
-        @_handleRedirect method, resp.headers.location, options, callback
+        @_handleRedirect method, resp.headers.location, opt, callback
       else
         @_handleResponse err, resp, body, callback
 

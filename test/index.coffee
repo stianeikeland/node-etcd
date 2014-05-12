@@ -17,7 +17,7 @@ describe 'Utility', ->
     it 'should return default request options', ->
       etcd._prepareOpts('keypath/key').should.include {
         json: true
-        url: 'http://127.0.0.1:4001/v2/keypath/key'
+        path: '/v2/keypath/key'
       }
 
 describe 'Basic functions', ->
@@ -195,7 +195,7 @@ describe 'SSL support', ->
   it 'should use https url if sslopts is given', ->
     etcdssl = new Etcd 'localhost', '4001', {}
     opt = etcdssl._prepareOpts 'path'
-    opt.url.should.match(/^https:.+$/)
+    opt.protocol.should.equal "https"
 
   it 'should create https.agent and set ca if ca is given', ->
     etcdsslca = new Etcd 'localhost', '4001', {ca: ['ca']}
@@ -203,4 +203,3 @@ describe 'SSL support', ->
     should.exist opt.agent
     should.exist opt.agent.options.ca
     opt.agent.options.ca.should.eql ['ca']
-
