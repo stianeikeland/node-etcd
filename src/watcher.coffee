@@ -48,10 +48,11 @@ class Watcher extends EventEmitter
       error = new Error 'Received unexpected response'
       error.response = val;
       @emit 'error', error
-      @_watch()
+      @_retry()
 
   _retry: () =>
-    setTimeout @_watch, 500 * @retryAttempts
+    timeout = (Math.pow(2,@retryAttempts)*300) + (Math.round(Math.random() * 1000))
+    setTimeout @_watch, timeout
     @retryAttempts++
 
 exports = module.exports = Watcher
