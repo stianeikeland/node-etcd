@@ -263,3 +263,7 @@ sslopts = {
 etcdssl = new Etcd('localhost', '4001', sslopts);
 ```
 
+## FAQ:
+
+- Are there any order of execution guarantees when doing multiple requests without using callbacks?
+    - No, order of execution is up to NodeJS and the network. Requests run from a connection pool, meaning that if one request is delayed for some reason they'll arrive at the server out of order. Use callbacks (and maybe even a nice [async](https://github.com/caolan/async) callback handling library for convenient syntax) if ordering is important to prevent race conditions.
