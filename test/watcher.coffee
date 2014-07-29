@@ -85,6 +85,16 @@ describe 'Watcher', ->
 
     etcd.change "error", null
 
+  it 'should reconnect (watch again) on empty body (etcd timeout)', (done) ->
+    etcd = new FakeEtcd
+    w = new Watcher etcd, 'key'
+
+    etcd.watch = (key, cb) ->
+      w.retryAttempts.should.equal 1
+      done()
+
+    etcd.change null, null
+
   it 'should call watch on next index after getting change', (done) ->
     etcd = new FakeEtcd
     w = new Watcher etcd, 'key'

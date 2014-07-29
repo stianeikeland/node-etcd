@@ -21,6 +21,8 @@ $ npm install node-etcd@0.6.1
 
 ## Changes
 
+- 2.1.3 - Etcd sends an empty response on timeout in recent versions. Parsing
+  the empty message caused watcher to emit error. Now it reconnects instead.
 - 2.1.2 - Exponential backoff (retry), fix spinning reconnect on error. (@ptte)
 - 2.1.1 - Increase request pool.maxSockets to 100
 - 2.1.0 - Use proper error objects instead of strings for errors.

@@ -26,8 +26,8 @@ class Watcher extends EventEmitter
     else
       @request = @etcd.watchIndex @key, @index, @options, @_respHandler
 
-  _respHandler: (err, val, headers) =>
 
+  _respHandler: (err, val, headers) =>
     return if @stopped
 
     if err
@@ -44,11 +44,18 @@ class Watcher extends EventEmitter
       @emit val.action, val, headers if val.action?
       @_watch()
 
+    else if not val?
+      error = new Error 'Etcd timed out watcher, reconnecting.'
+      error.reconnectCount = @retryAttempts
+      @emit 'reconnect', error
+      @_retry()
+
     else
       error = new Error 'Received unexpected response'
       error.response = val;
       @emit 'error', error
       @_retry()
+
 
   _retry: () =>
     timeout = (Math.pow(2,@retryAttempts)*300) + (Math.round(Math.random() * 1000))
