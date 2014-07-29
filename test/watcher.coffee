@@ -89,8 +89,7 @@ describe 'Watcher', ->
     etcd = new FakeEtcd
     w = new Watcher etcd, 'key'
 
-    etcd.watch = (key, cb) ->
-      w.retryAttempts.should.equal 1
+    w.on 'reconnect', () ->
       done()
 
     etcd.change null, null

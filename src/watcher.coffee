@@ -46,9 +46,8 @@ class Watcher extends EventEmitter
 
     else if not val?
       error = new Error 'Etcd timed out watcher, reconnecting.'
-      error.reconnectCount = @retryAttempts
       @emit 'reconnect', error
-      @_retry()
+      @_watch()
 
     else
       error = new Error 'Received unexpected response'
