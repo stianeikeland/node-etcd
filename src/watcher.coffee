@@ -26,34 +26,49 @@ class Watcher extends EventEmitter
     else
       @request = @etcd.watchIndex @key, @index, @options, @_respHandler
 
+  _error: (err) =>
+    # Something went wrong, most likely on the network,
+    # maybe disconnected, or similar.
+    error = new Error 'Connection error, reconnecting.'
+    error.error = err
+    error.reconnectCount = @retryAttempts
+    @emit 'reconnect', error
+    @_retry()
+
+  _missingValue: (headers) =>
+    # Etcd sent us an empty response, it seems to do this when
+    # it times out a watching client.
+    error = new Error 'Etcd timed out watcher, reconnecting.'
+    error.headers = headers
+    @emit 'reconnect', error
+    @_watch()
+
+  _valueChanged: (val, headers) =>
+    # Valid data received, value was changed.
+    @retryAttempts = 0
+    @index = val.node.modifiedIndex + 1
+    @emit 'change', val, headers
+    @emit val.action, val, headers if val.action?
+    @_watch()
+
+  _unexpectedData: (val, headers) =>
+    # Unexpected data received
+    error = new Error 'Received unexpected response'
+    error.response = val;
+    @emit 'error', error
+    @_retry()
 
   _respHandler: (err, val, headers) =>
     return if @stopped
 
     if err
-      error = new Error 'Connection error, reconnecting.'
-      error.error = err
-      error.reconnectCount = @retryAttempts
-      @emit 'reconnect', error
-      @_retry()
-
-    else if val?.node?.modifiedIndex?
-      @retryAttempts = 0
-      @index = val.node.modifiedIndex + 1
-      @emit 'change', val, headers
-      @emit val.action, val, headers if val.action?
-      @_watch()
-
+      @_error err
     else if not val?
-      error = new Error 'Etcd timed out watcher, reconnecting.'
-      @emit 'reconnect', error
-      @_watch()
-
+      @_missingValue headers
+    else if val?.node?.modifiedIndex?
+      @_valueChanged val, headers
     else
-      error = new Error 'Received unexpected response'
-      error.response = val;
-      @emit 'error', error
-      @_retry()
+      @_unexpectedData val, headers
 
 
   _retry: () =>
