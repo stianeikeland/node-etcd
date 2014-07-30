@@ -18,8 +18,8 @@ class FakeEtcd
     @cb = cb
     return @abort()
 
-  change: (err, val) ->
-    @cb err, val
+  change: (err, val, header = {}) ->
+    @cb err, val, header
 
 
 describe 'Watcher', ->
@@ -92,7 +92,7 @@ describe 'Watcher', ->
     w.on 'reconnect', () ->
       done()
 
-    etcd.change null, null
+    etcd.change null, null, {'x-etcd-index': 123}
 
   it 'should call watch on next index after getting change', (done) ->
     etcd = new FakeEtcd

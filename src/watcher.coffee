@@ -40,6 +40,7 @@ class Watcher extends EventEmitter
     # it times out a watching client.
     error = new Error 'Etcd timed out watcher, reconnecting.'
     error.headers = headers
+    @retryAttempts = 0
     @emit 'reconnect', error
     @_watch()
 
@@ -63,7 +64,7 @@ class Watcher extends EventEmitter
 
     if err
       @_error err
-    else if not val?
+    else if headers?['x-etcd-index']? and not val?
       @_missingValue headers
     else if val?.node?.modifiedIndex?
       @_valueChanged val, headers
