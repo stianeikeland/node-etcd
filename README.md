@@ -21,6 +21,7 @@ $ npm install node-etcd@0.6.1
 
 ## Changes
 
+- 2.1.5 - Watcher: try to resync if etcd reports cleared index
 - 2.1.4 - Don't wait before reconnecting if Etcd server times out our watcher.
 - 2.1.3 - Etcd sends an empty response on timeout in recent versions. Parsing
   the empty message caused watcher to emit error. Now it reconnects instead.
