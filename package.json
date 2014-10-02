@@ -38,7 +38,7 @@
     "coffee-script": "~1.6.3",
     "mocha": "~1.17.1",
     "should": "~3.1.2",
-    "nock": "~0.48.0"
+    "nock": "~0.27.2"
   },
   "keywords": ["etcd", "raft"]
 }
