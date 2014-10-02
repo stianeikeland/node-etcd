@@ -205,6 +205,7 @@ Signals:
 - `error` - emitted on invalid content
 - `<etcd action>` - the etcd action that triggered the watcher (ex: set, delete).
 - `stop` - watcher was canceled.
+- `resync` - watcher lost sync (etcd clear and outdated the index).
 
 ### .raw(method, key, value, options, callback)
 
