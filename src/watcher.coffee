@@ -59,10 +59,18 @@ class Watcher extends EventEmitter
     @emit 'error', error
     @_retry()
 
+  _resync: (err) =>
+    @index = err.error.index
+    @retryAttempts = 0
+    @emit 'resync', err
+    @_watch()
+
   _respHandler: (err, val, headers) =>
     return if @stopped
 
-    if err
+    if err?.errorCode is 401 and err.error?.index?
+      @_resync err
+    else if err
       @_error err
     else if headers?['x-etcd-index']? and not val?
       @_missingValue headers
