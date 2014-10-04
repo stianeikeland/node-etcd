@@ -1,6 +1,6 @@
-_       = require 'underscore'
-Watcher = require './watcher'
-Client = require './client'
+_          = require 'underscore'
+Watcher    = require './watcher'
+Client     = require './client'
 HttpsAgent = (require 'https').Agent
 
 # Etcd client for etcd protocol version 2
@@ -15,6 +15,7 @@ class Etcd
 
     @client ?= new Client(@hosts, @sslopts)
 
+
   # Set key to value
   # Usage:
   #   .set("key", "value", callback)
@@ -24,6 +25,7 @@ class Etcd
     opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", value, options
     @client.put opt, callback
 
+
   # Get value of key
   # Usage:
   #   .get("key", callback)
@@ -32,6 +34,7 @@ class Etcd
     [options, callback] = @_argParser options, callback
     opt = @_prepareOpts ("keys/" + @_stripSlashPrefix key), "/v2", null, options
     @client.get opt, callback
+
 
   # Create a key (atomic in order)
   # Usage:
@@ -43,6 +46,7 @@ class Etcd
     @client.post opt, callback
 
   post: @::create
+
 
   # Delete a key
   # Usage:
@@ -56,6 +60,7 @@ class Etcd
 
   delete: @::del
 
+
   # Make a directory
   # Usage:
   #   .mkdir("dir", callback)
@@ -65,6 +70,7 @@ class Etcd
     options.dir = true
     @set dir, null, options, callback
 
+
   # Remove a directory
   # Usage:
   #   .rmdir("dir", callback)
@@ -73,6 +79,7 @@ class Etcd
     [options, callback] = @_argParser options, callback
     options.dir = true
     @del dir, options, callback
+
 
   # Compare and swap value if unchanged
   # Usage:
@@ -88,6 +95,7 @@ class Etcd
 
   testAndSet: @::compareAndSwap
 
+
   # Compare and delete if value is unchanged
   # Usage:
   #   .compareAndDelete("key", "oldValue", options, callback)
@@ -99,6 +107,7 @@ class Etcd
     @del key, options, callback
 
   testAndDelete: @::compareAndDelete
+
 
   # Execute a raw etcd query
   # Where method is one of: PUT, GET, POST, PATCH, DELETE
@@ -112,6 +121,7 @@ class Etcd
     opt = @_prepareOpts key, "", value, options
     @client.execute method, opt, callback
 
+
   # Watch for value changes on a key
   watch: (key, options, callback) ->
     [options, callback] = @_argParser options, callback
@@ -120,6 +130,7 @@ class Etcd
 
     @get key, options, callback
 
+
   # Watch for value changes on a key since a specific index
   watchIndex: (key, index, options, callback) ->
     [options, callback] = @_argParser options, callback
@@ -127,6 +138,7 @@ class Etcd
     options.waitIndex = index
 
     @watch key, options, callback
+
 
   # Returns an eventemitter that watches a key, emits 'change' on value change
   # or 'reconnect' when trying to recover from errors.
@@ -139,20 +151,24 @@ class Etcd
     opt = @_prepareOpts "keys/_etcd/machines"
     @client.get opt, callback
 
+
   # Get the current cluster leader
   leader: (callback) ->
     opt = @_prepareOpts "leader"
     @client.get opt, callback
+
 
   # Get statistics about the leader
   leaderStats: (callback) ->
     opt = @_prepareOpts "stats/leader"
     @client.get opt, callback
 
+
   # Get statistics about the currently connected entity
   selfStats: (callback) ->
     opt = @_prepareOpts "stats/self"
     @client.get opt, callback
+
 
   # Get version of etcd
   version: (callback) ->
@@ -163,6 +179,7 @@ class Etcd
   # Strip the prefix slash if set
   _stripSlashPrefix: (key) ->
     key.replace /^\//, ''
+
 
   # Prepare request options
   _prepareOpts: (path, apiVersion = "/v2", value = null, queryString = null) ->
@@ -183,11 +200,13 @@ class Etcd
       form: { value: value } if value?
     }
 
+
   # Swap callback and options if no options was given.
   _argParser: (options, callback) ->
     if typeof options is 'function'
       [{}, options]
     else
       [options, callback]
+
 
 exports = module.exports = Etcd

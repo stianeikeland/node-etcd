@@ -5,6 +5,7 @@ class Client
 
   constructor: (@hosts, @sslopts) ->
 
+
   execute: (method, options, callback) =>
     host = @hosts[0]
 
@@ -19,11 +20,13 @@ class Client
       else
         @_handleResponse err, resp, body, callback
 
+
   put: (options, callback) => @execute "PUT", options, callback
   get: (options, callback) => @execute "GET", options, callback
   post: (options, callback) => @execute "POST", options, callback
   patch: (options, callback) => @execute "PATCH", options, callback
   delete: (options, callback) => @execute "DELETE", options, callback
+
 
   # This is a workaround for issue #556 in the request library
   # 307 redirects are changed from POST/PUT/DEL to GET
@@ -31,10 +34,12 @@ class Client
   _wasRedirected: (resp) ->
     resp?.statusCode? and resp.statusCode is 307 and resp?.headers?.location?
 
+
   _handleRedirect: (method, redirectURL, options, callback) =>
     opt = _.clone options
     opt.url = redirectURL
     @execute method, opt, callback
+
 
   _handleResponse: (err, resp, body, callback) ->
     return if not callback?

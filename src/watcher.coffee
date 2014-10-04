@@ -15,16 +15,19 @@ class Watcher extends EventEmitter
     @retryAttempts = 0
     @_watch()
 
+
   stop: () =>
     @stopped = true
     @request.abort()
     @emit 'stop', "Watcher for '#{@key}' aborted."
+
 
   _watch: () =>
     if @index is null
       @request = @etcd.watch @key, @options, @_respHandler
     else
       @request = @etcd.watchIndex @key, @index, @options, @_respHandler
+
 
   _error: (err) =>
     # Something went wrong, most likely on the network,
@@ -35,6 +38,7 @@ class Watcher extends EventEmitter
     @emit 'reconnect', error
     @_retry()
 
+
   _missingValue: (headers) =>
     # Etcd sent us an empty response, it seems to do this when
     # it times out a watching client.
@@ -44,6 +48,7 @@ class Watcher extends EventEmitter
     @emit 'reconnect', error
     @_watch()
 
+
   _valueChanged: (val, headers) =>
     # Valid data received, value was changed.
     @retryAttempts = 0
@@ -52,6 +57,7 @@ class Watcher extends EventEmitter
     @emit val.action, val, headers if val.action?
     @_watch()
 
+
   _unexpectedData: (val, headers) =>
     # Unexpected data received
     error = new Error 'Received unexpected response'
@@ -59,11 +65,13 @@ class Watcher extends EventEmitter
     @emit 'error', error
     @_retry()
 
+
   _resync: (err) =>
     @index = err.error.index
     @retryAttempts = 0
     @emit 'resync', err
     @_watch()
+
 
   _respHandler: (err, val, headers) =>
     return if @stopped
@@ -84,5 +92,6 @@ class Watcher extends EventEmitter
     timeout = (Math.pow(2,@retryAttempts)*300) + (Math.round(Math.random() * 1000))
     setTimeout @_watch, timeout
     @retryAttempts++
+
 
 exports = module.exports = Watcher
