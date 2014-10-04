@@ -1,25 +1,20 @@
 request = require 'request'
 _       = require 'underscore'
 
+# Default options for request library
+defaultOptions =
+  pool:
+    maxSockets: 100
+  followAllRedirects: true
+
+
 class Client
 
   constructor: (@hosts, @sslopts) ->
 
-
   execute: (method, options, callback) =>
-    host = @hosts[0]
-
-    opt = _.clone options
-    opt.method = method
-    opt.url ?= "#{opt.protocol}://#{host}#{opt.path}"
-    opt.pool = maxSockets: 100
-
-    request opt, (err, resp, body) =>
-      if @_wasRedirected resp
-        @_handleRedirect method, resp.headers.location, opt, callback
-      else
-        @_handleResponse err, resp, body, callback
-
+    opt = _.defaults (_.clone options), defaultOptions, { method: method }
+    @_executeHelper @hosts, opt, callback
 
   put: (options, callback) => @execute "PUT", options, callback
   get: (options, callback) => @execute "GET", options, callback
@@ -27,18 +22,13 @@ class Client
   patch: (options, callback) => @execute "PATCH", options, callback
   delete: (options, callback) => @execute "DELETE", options, callback
 
+  # Multiserver (cluster) executer
+  _executeHelper: (servers, options, callback) =>
+    host = _.first(servers)
+    options.url ?= "#{options.protocol}://#{host}#{options.path}"
 
-  # This is a workaround for issue #556 in the request library
-  # 307 redirects are changed from POST/PUT/DEL to GET
-  # https://github.com/mikeal/request/pull/556
-  _wasRedirected: (resp) ->
-    resp?.statusCode? and resp.statusCode is 307 and resp?.headers?.location?
-
-
-  _handleRedirect: (method, redirectURL, options, callback) =>
-    opt = _.clone options
-    opt.url = redirectURL
-    @execute method, opt, callback
+    request options, (err, resp, body) =>
+      @_handleResponse err, resp, body, callback
 
 
   _handleResponse: (err, resp, body, callback) ->

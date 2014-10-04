@@ -210,10 +210,8 @@ describe 'Multiserver/Cluster support', ->
 
   it 'should accept list of servers in constructor', ->
     etcd = new Etcd ['localhost:4001', 'localhost:4002']
-    console.log etcd.getHosts()
     etcd.getHosts().should.eql ['localhost:4001', 'localhost:4002']
 
   it 'should accept host and port in constructor', ->
     etcd = new Etcd 'localhost', 4001
-    console.log etcd.getHosts()
     etcd.getHosts().should.eql ['localhost:4001']
