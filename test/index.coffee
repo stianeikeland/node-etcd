@@ -190,6 +190,7 @@ describe 'Basic functions', ->
         val.should.equal 'etcd v0.1.0-8-gaad1626'
         done err, val
 
+
 describe 'SSL support', ->
 
   it 'should use https url if sslopts is given', ->
@@ -203,3 +204,16 @@ describe 'SSL support', ->
     should.exist opt.agent
     should.exist opt.agent.options.ca
     opt.agent.options.ca.should.eql ['ca']
+
+
+describe 'Multiserver/Cluster support', ->
+
+  it 'should accept list of servers in constructor', ->
+    etcd = new Etcd ['localhost:4001', 'localhost:4002']
+    console.log etcd.getHosts()
+    etcd.getHosts().should.eql ['localhost:4001', 'localhost:4002']
+
+  it 'should accept host and port in constructor', ->
+    etcd = new Etcd 'localhost', 4001
+    console.log etcd.getHosts()
+    etcd.getHosts().should.eql ['localhost:4001']

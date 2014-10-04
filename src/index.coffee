@@ -8,10 +8,16 @@ class Etcd
 
   # Constructor, set etcd host and port.
   # For https: provide {ca, crt, key} as sslopts.
-  constructor: (host = '127.0.0.1', port = '4001', @sslopts = null, @client = null) ->
+  constructor: (host = '127.0.0.1', port = '4001', sslopts = null, client = null) ->
 
-    if _.isString(host) and _.isString(port)
+    if _.isArray(host)
+      @hosts = host
+      @sslopts = port
+      @client = sslopts
+    else
       @hosts = ["#{host}:#{port}"]
+      @sslopts = sslopts
+      @client = client
 
     @client ?= new Client(@hosts, @sslopts)
 
@@ -146,10 +152,15 @@ class Etcd
     return new Watcher this, key, index, options
 
 
-  # Get the etcd cluster machines
+  # Get the etcd cluster machines (server)
   machines: (callback) ->
     opt = @_prepareOpts "keys/_etcd/machines"
     @client.get opt, callback
+
+
+  # List servers this etcd client will try to connect to
+  getHosts: () ->
+    _.clone(@hosts)
 
 
   # Get the current cluster leader
