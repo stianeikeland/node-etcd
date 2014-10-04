@@ -2,6 +2,11 @@ should = require 'should'
 nock = require 'nock'
 Etcd = require '../src/index.coffee'
 
+# Helpers
+
+getNock = (host = 'http://127.0.0.1:4001') ->
+  nock host
+
 # Tests for utility functions
 
 describe 'Utility', ->
@@ -23,9 +28,6 @@ describe 'Utility', ->
 describe 'Basic functions', ->
 
   etcd = new Etcd
-
-  getNock = ->
-    nock 'http://127.0.0.1:4001'
 
   checkVal = (done) ->
     (err, val) ->
@@ -208,10 +210,45 @@ describe 'SSL support', ->
 
 describe 'Multiserver/Cluster support', ->
 
+  beforeEach () ->
+    nock.cleanAll()
+
   it 'should accept list of servers in constructor', ->
     etcd = new Etcd ['localhost:4001', 'localhost:4002']
     etcd.getHosts().should.eql ['localhost:4001', 'localhost:4002']
 
+
   it 'should accept host and port in constructor', ->
     etcd = new Etcd 'localhost', 4001
     etcd.getHosts().should.eql ['localhost:4001']
+
+
+  it 'should try next server in list on http error', (done) ->
+    path = '/v2/keys/foo'
+    response = '{"action":"GET","key":"/key","value":"value","index":1}'
+
+    handler = (uri) ->
+      nock.cleanAll()
+      getNock('http://s1').get(path).reply(200, response)
+      getNock('http://s2').get(path).reply(200, response)
+      return {}
+
+    getNock('http://s1').get(path).reply(500, handler)
+    getNock('http://s2').get(path).reply(500, handler)
+
+    etcd = new Etcd ['s1', 's2']
+    etcd.get 'foo', (err, res) ->
+      res.value.should.eql 'value'
+      done()
+
+
+  it 'should callback error if all servers failed', (done) ->
+    path = '/v2/keys/foo'
+    getNock('http://s1').get(path).reply(500, {})
+    getNock('http://s2').get(path).reply(500, {})
+
+    etcd = new Etcd ['s1', 's2']
+    etcd.get 'foo', (err, res) ->
+      err.should.be.an.instanceOf Error
+      err.errors.should.have.lengthOf 2
+      done()
