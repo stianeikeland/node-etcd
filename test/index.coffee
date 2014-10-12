@@ -198,7 +198,7 @@ describe 'SSL support', ->
   it 'should use https url if sslopts is given', ->
     etcdssl = new Etcd 'localhost', '4001', {}
     opt = etcdssl._prepareOpts 'path'
-    opt.protocol.should.equal "https"
+    opt.serverprotocol.should.equal "https"
 
   it 'should create https.agent and set ca if ca is given', ->
     etcdsslca = new Etcd 'localhost', '4001', {ca: ['ca']}

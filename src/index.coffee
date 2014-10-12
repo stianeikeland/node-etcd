@@ -195,17 +195,17 @@ class Etcd
 
   # Prepare request options
   _prepareOpts: (path, apiVersion = "/v2", value = null, queryString = null) ->
-    protocol = "http"
+    serverprotocol = "http"
 
     # Set up HttpsAgent if sslopts {ca, key, cert} are given
     if @sslopts?
-      protocol = "https"
+      serverprotocol = "https"
       httpsagent = new HttpsAgent
       _.extend httpsagent.options, @sslopts
 
     opt = {
       path: "#{apiVersion}/#{path}"
-      protocol: protocol
+      serverprotocol: serverprotocol
       json: true
       agent: httpsagent if httpsagent?
       qs: queryString if queryString?

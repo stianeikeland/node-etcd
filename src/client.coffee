@@ -26,7 +26,7 @@ class Client
   # Multiserver (cluster) executer
   _multiserverHelper: (servers, options, errors, callback) =>
     host = _.first(servers)
-    options.url = "#{options.protocol}://#{host}#{options.path}"
+    options.url = "#{options.serverprotocol}://#{host}#{options.path}"
 
     if not host? # No servers left?
       error = new Error 'All servers returned error'
