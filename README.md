@@ -67,7 +67,7 @@ etcd = new Etcd('127.0.0.1', '4001');
 Create a new etcd client for a clustered etcd setup.
 
 ```javascript
-etcd = new Etcd(['127.0.0.1:4001','192.168.1.1:4001]);
+etcd = new Etcd(['127.0.0.1:4001','192.168.1.1:4001']);
 ```
 
 ### .set(key, value = null, [options], [callback])
