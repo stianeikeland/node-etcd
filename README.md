@@ -55,11 +55,19 @@ etcd.get("key", console.log);
 
 ### Etcd([host = '127.0.0.1'], [port = '4001'], [ssloptions])
 
-Create a new etcd client
+Create a new etcd client for a single host etcd setup
 
 ```javascript
 etcd = new Etcd();
 etcd = new Etcd('127.0.0.1', '4001');
+```
+
+### Etcd(hosts, [ssloptions])
+
+Create a new etcd client for a clustered etcd setup.
+
+```javascript
+etcd = new Etcd(['127.0.0.1:4001','192.168.1.1:4001]);
 ```
 
 ### .set(key, value = null, [options], [callback])
