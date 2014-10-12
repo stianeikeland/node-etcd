@@ -56,11 +56,12 @@ class Client
 
     token.setRequest request options, (err, resp, body) =>
       if @_isHttpError err, resp
-        errors.push { server: host, error: "TODO" }
+        errors.push { server: host, httperror: err, response: resp }
         # Recurse:
         @_multiserverHelper _.rest(servers), options, token, errors, callback
       else if not token.isAborted()
         @_handleResponse err, resp, body, callback
+
 
   _isHttpError: (err, resp) ->
     err or (resp?.statusCode? and resp.statusCode >= 500)
