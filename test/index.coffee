@@ -216,6 +216,32 @@ describe 'SSL support', ->
     etcdssl.get 'key', done
 
 
+describe 'Cancellation Token', ->
+
+  beforeEach () ->
+    nock.cleanAll()
+
+  it 'should return token on request', ->
+    getNock().get('/version').reply(200, 'etcd v0.1.0-8-gaad1626')
+    etcd = new Etcd
+    token = etcd.version()
+    token.abort.should.be.a.function
+    token.isAborted().should.be.false
+
+  it 'should stop execution on abort', (done) ->
+    http = getNock()
+      .get('/v2/keys/key')
+      .reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
+    etcd = new Etcd '127.0.0.1', 4001
+
+    token = etcd.version () -> throw new Error "Version call should have been aborted"
+    token.abort()
+
+    etcd.get 'key', () ->
+      http.isDone().should.be.true
+      done()
+
+
 describe 'Multiserver/Cluster support', ->
 
   beforeEach () ->
