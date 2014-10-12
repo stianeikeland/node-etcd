@@ -207,6 +207,14 @@ describe 'SSL support', ->
     should.exist opt.agent.options.ca
     opt.agent.options.ca.should.eql ['ca']
 
+  it 'should connect to https if sslopts is given', (done) ->
+    getNock('https://localhost:4001')
+      .get('/v2/keys/key')
+      .reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
+
+    etcdssl = new Etcd ['localhost:4001'], {ca: ['ca']}
+    etcdssl.get 'key', done
+
 
 describe 'Multiserver/Cluster support', ->
 
