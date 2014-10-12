@@ -252,6 +252,22 @@ Return statistics about connected etcd node
 etcd.selfStats(console.log);
 ```
 
+## Aborting a request
+
+All requests will return a cancellation token, to abort a request, do
+the following:
+
+```javascript
+var token = etcd.get("key", console.log);
+token.abort() // also aliased as token.cancel()
+
+console.log("Request is cancelled: ", token.isAborted());
+```
+
+Note that there are no guarantees that aborted write operations won't have
+affected server state before they were aborted. They only guarantee here is that
+you won't get any callbacks from the request after calling `.abort()`.
+
 ## SSL support
 
 Pass etcdclient a dictionary containing ssl options, check out http://nodejs.org/api/https.html#https_https_request_options_callback
