@@ -74,10 +74,6 @@ class Client
       error.errorCode = body.errorCode
       error.error = body
       callback error, "", (resp?.headers or {})
-    # else if err? or @_httpError resp
-    #   error = new Error 'HTTP error'
-    #   error.error = err
-      # callback error, null, (resp?.headers or {})
     else
       callback null, body, (resp?.headers or {})
 
