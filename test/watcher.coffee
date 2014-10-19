@@ -130,39 +130,32 @@ describe 'Watcher resync', ->
     nock 'http://127.0.0.1:4001'
 
   it 'should resync if index is outdated and cleared', (done) ->
-    # getNock()
-    #   .get('/v2/keys/key')
-    #   .reply(200, {})
-
     getNock()
       .get('/v2/keys/key?waitIndex=0&wait=true')
       .reply(401, {
-        errorCode: 401,
-        message: "The event in requested index is outdated and cleared",
-        cause: "the requested history has been cleared [1007/4]",
+        errorCode: 401
+        message: "The event in requested index is outdated and cleared"
+        cause: "the requested history has been cleared [1007/4]"
         index: 2006
         })
       .get('/v2/keys/key?waitIndex=2006&wait=true')
-        .reply(200, {
-          action:"set",
-          node: {
-            key: "/key",
-            value: "banan",
-            modifiedIndex: 2013,
+      .reply(200, {
+          action:"set"
+          node:
+            key: "/key"
+            value: "banan"
+            modifiedIndex: 2013
             createdIndex: 2013
-            },
-          prevNode: {
-            key: "/key",
-            value: "2",
-            modifiedIndex: 5,
+          prevNode:
+            key: "/key"
+            value: "2"
+            modifiedIndex: 5
             createdIndex: 5
-            }
           })
+      .get('/v2/keys/key?waitIndex=2014&wait=true').reply(200,{})
 
-    etcd = new Etcd
-    w = etcd.watcher 'key', 0
+    w = new Watcher (new Etcd), 'key', 0
     w.on 'change', (res) ->
       res.node.value.should.equal 'banan'
+      w.stop()
       done()
-
-  it 'should discover if it missed any updates on resync'

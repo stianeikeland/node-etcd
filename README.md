@@ -55,11 +55,19 @@ etcd.get("key", console.log);
 
 ### Etcd([host = '127.0.0.1'], [port = '4001'], [ssloptions])
 
-Create a new etcd client
+Create a new etcd client for a single host etcd setup
 
 ```javascript
 etcd = new Etcd();
 etcd = new Etcd('127.0.0.1', '4001');
+```
+
+### Etcd(hosts, [ssloptions])
+
+Create a new etcd client for a clustered etcd setup.
+
+```javascript
+etcd = new Etcd(['127.0.0.1:4001','192.168.1.1:4001']);
 ```
 
 ### .set(key, value = null, [options], [callback])
@@ -251,6 +259,22 @@ Return statistics about connected etcd node
 ```javascript
 etcd.selfStats(console.log);
 ```
+
+## Aborting a request
+
+All requests will return a cancellation token, to abort a request, do
+the following:
+
+```javascript
+var token = etcd.get("key", console.log);
+token.abort() // also aliased as token.cancel()
+
+console.log("Request is cancelled: ", token.isAborted());
+```
+
+Note that there are no guarantees that aborted write operations won't have
+affected server state before they were aborted. They only guarantee here is that
+you won't get any callbacks from the request after calling `.abort()`.
 
 ## SSL support
 

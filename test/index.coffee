@@ -2,6 +2,11 @@ should = require 'should'
 nock = require 'nock'
 Etcd = require '../src/index.coffee'
 
+# Helpers
+
+getNock = (host = 'http://127.0.0.1:4001') ->
+  nock host
+
 # Tests for utility functions
 
 describe 'Utility', ->
@@ -17,15 +22,12 @@ describe 'Utility', ->
     it 'should return default request options', ->
       etcd._prepareOpts('keypath/key').should.include {
         json: true
-        url: 'http://127.0.0.1:4001/v2/keypath/key'
+        path: '/v2/keypath/key'
       }
 
 describe 'Basic functions', ->
 
   etcd = new Etcd
-
-  getNock = ->
-    nock 'http://127.0.0.1:4001'
 
   checkVal = (done) ->
     (err, val) ->
@@ -190,12 +192,13 @@ describe 'Basic functions', ->
         val.should.equal 'etcd v0.1.0-8-gaad1626'
         done err, val
 
+
 describe 'SSL support', ->
 
   it 'should use https url if sslopts is given', ->
     etcdssl = new Etcd 'localhost', '4001', {}
     opt = etcdssl._prepareOpts 'path'
-    opt.url.should.match(/^https:.+$/)
+    opt.serverprotocol.should.equal "https"
 
   it 'should create https.agent and set ca if ca is given', ->
     etcdsslca = new Etcd 'localhost', '4001', {ca: ['ca']}
@@ -204,3 +207,82 @@ describe 'SSL support', ->
     should.exist opt.agent.options.ca
     opt.agent.options.ca.should.eql ['ca']
 
+  it 'should connect to https if sslopts is given', (done) ->
+    getNock('https://localhost:4001')
+      .get('/v2/keys/key')
+      .reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
+
+    etcdssl = new Etcd ['localhost:4001'], {ca: ['ca']}
+    etcdssl.get 'key', done
+
+
+describe 'Cancellation Token', ->
+
+  beforeEach () ->
+    nock.cleanAll()
+
+  it 'should return token on request', ->
+    getNock().get('/version').reply(200, 'etcd v0.1.0-8-gaad1626')
+    etcd = new Etcd
+    token = etcd.version()
+    token.abort.should.be.a.function
+    token.isAborted().should.be.false
+
+  it 'should stop execution on abort', (done) ->
+    http = getNock()
+      .get('/v2/keys/key')
+      .reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
+    etcd = new Etcd '127.0.0.1', 4001
+
+    token = etcd.version () -> throw new Error "Version call should have been aborted"
+    token.abort()
+
+    etcd.get 'key', () ->
+      http.isDone().should.be.true
+      done()
+
+
+describe 'Multiserver/Cluster support', ->
+
+  beforeEach () ->
+    nock.cleanAll()
+
+  it 'should accept list of servers in constructor', ->
+    etcd = new Etcd ['localhost:4001', 'localhost:4002']
+    etcd.getHosts().should.eql ['localhost:4001', 'localhost:4002']
+
+
+  it 'should accept host and port in constructor', ->
+    etcd = new Etcd 'localhost', 4001
+    etcd.getHosts().should.eql ['localhost:4001']
+
+
+  it 'should try next server in list on http error', (done) ->
+    path = '/v2/keys/foo'
+    response = '{"action":"GET","key":"/key","value":"value","index":1}'
+
+    handler = (uri) ->
+      nock.cleanAll()
+      getNock('http://s1').get(path).reply(200, response)
+      getNock('http://s2').get(path).reply(200, response)
+      return {}
+
+    getNock('http://s1').get(path).reply(500, handler)
+    getNock('http://s2').get(path).reply(500, handler)
+
+    etcd = new Etcd ['s1', 's2']
+    etcd.get 'foo', (err, res) ->
+      res.value.should.eql 'value'
+      done()
+
+
+  it 'should callback error if all servers failed', (done) ->
+    path = '/v2/keys/foo'
+    getNock('http://s1').get(path).reply(500, {})
+    getNock('http://s2').get(path).reply(500, {})
+
+    etcd = new Etcd ['s1', 's2']
+    etcd.get 'foo', (err, res) ->
+      err.should.be.an.instanceOf Error
+      err.errors.should.have.lengthOf 2
+      done()

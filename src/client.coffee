@@ -1,20 +1,40 @@
 request = require 'request'
 _       = require 'underscore'
 
+# Default options for request library
+defaultOptions =
+  pool:
+    maxSockets: 100
+  followAllRedirects: true
+
+# CancellationToken to abort a request
+class CancellationToken
+  constructor: (@hosts) ->
+    @aborted = false
+
+  setRequest: (req) =>
+    @req = req
+
+  isAborted: () =>
+    @aborted
+
+  abort: () =>
+    @aborted = true
+    @req.abort() if @req?
+
+  cancel: @::abort
+
+# HTTP Client for connecting to etcd servers
 class Client
 
-  constructor: (@sslopts) ->
+  constructor: (@hosts, @sslopts) ->
 
   execute: (method, options, callback) =>
-    options = _.clone options
-    options.method = method
-    options.pool = maxSockets: 100
-
-    request options, (err, resp, body) =>
-      if @_wasRedirected resp
-        @_handleRedirect method, resp.headers.location, options, callback
-      else
-        @_handleResponse err, resp, body, callback
+    opt = _.defaults (_.clone options), defaultOptions, { method: method }
+    servers = _.shuffle @hosts
+    token = new CancellationToken servers
+    @_multiserverHelper servers, opt, token, errors = [], callback
+    return token
 
   put: (options, callback) => @execute "PUT", options, callback
   get: (options, callback) => @execute "GET", options, callback
@@ -22,16 +42,30 @@ class Client
   patch: (options, callback) => @execute "PATCH", options, callback
   delete: (options, callback) => @execute "DELETE", options, callback
 
-  # This is a workaround for issue #556 in the request library
-  # 307 redirects are changed from POST/PUT/DEL to GET
-  # https://github.com/mikeal/request/pull/556
-  _wasRedirected: (resp) ->
-    resp?.statusCode? and resp.statusCode is 307 and resp?.headers?.location?
+  # Multiserver (cluster) executer
+  _multiserverHelper: (servers, options, token, errors, callback) =>
+    host = _.first(servers)
+    options.url = "#{options.serverprotocol}://#{host}#{options.path}"
 
-  _handleRedirect: (method, redirectURL, options, callback) =>
-    opt = _.clone options
-    opt.url = redirectURL
-    @execute method, opt, callback
+    return if token.isAborted() # Aborted by user?
+
+    if not host? # No servers left?
+      error = new Error 'All servers returned error'
+      error.errors = errors
+      return callback error
+
+    token.setRequest request options, (err, resp, body) =>
+      if @_isHttpError err, resp
+        errors.push { server: host, httperror: err, response: resp }
+        # Recurse:
+        @_multiserverHelper _.rest(servers), options, token, errors, callback
+      else if not token.isAborted()
+        @_handleResponse err, resp, body, callback
+
+
+  _isHttpError: (err, resp) ->
+    err or (resp?.statusCode? and resp.statusCode >= 500)
+
 
   _handleResponse: (err, resp, body, callback) ->
     return if not callback?
@@ -40,10 +74,6 @@ class Client
       error.errorCode = body.errorCode
       error.error = body
       callback error, "", (resp?.headers or {})
-    else if err?
-      error = new Error 'HTTP error'
-      error.error = err
-      callback error, null, (resp?.headers or {})
     else
       callback null, body, (resp?.headers or {})
 
