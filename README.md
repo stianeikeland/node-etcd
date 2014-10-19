@@ -21,6 +21,14 @@ $ npm install node-etcd@0.6.1
 
 ## Changes
 
+- 3.0.0 - Added cluster support, library now accepts a list of servers to
+  connect to, see constructor changes below. All requests now return a
+  cancellation token, meaning you can cancel requests by calling .cancel() or
+  .abort(). This release might break something if you've previously depended on
+  the leaky abstraction to the request library (request object from request
+  library was returned on all api calls - this has been replaced by the
+  cancellation token - the current request is still available under .req on the
+  token if you really need it.).
 - 2.1.5 - Watcher: try to resync if etcd reports cleared index
 - 2.1.4 - Don't wait before reconnecting if Etcd server times out our watcher.
 - 2.1.3 - Etcd sends an empty response on timeout in recent versions. Parsing
@@ -64,7 +72,9 @@ etcd = new Etcd('127.0.0.1', '4001');
 
 ### Etcd(hosts, [ssloptions])
 
-Create a new etcd client for a clustered etcd setup.
+Create a new etcd client for a clustered etcd setup. Client will connect to
+servers in random order. On failure it will try the next server. When all
+servers have failed it will callback with error.
 
 ```javascript
 etcd = new Etcd(['127.0.0.1:4001','192.168.1.1:4001']);
