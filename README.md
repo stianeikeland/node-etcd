@@ -12,13 +12,6 @@ Travis-CI: [![Build Status](https://travis-ci.org/stianeikeland/node-etcd.png?br
 $ npm install node-etcd
 ```
 
-For the older etcd v1 api, please use the 0.6.x branch
-
-```
-# Older version for v1 API:
-$ npm install node-etcd@0.6.1
-```
-
 ## Changes
 
 - 3.0.0 - Added cluster support, library now accepts a list of servers to
