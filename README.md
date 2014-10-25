@@ -190,6 +190,10 @@ etcd.watch("key");
 etcd.watch("key", console.log);
 ```
 
+The watch command is pretty low level, it does not handle reconnects or
+timeouts (Etcd will disconnect you after 5 minutes). Use the `.watcher()` below
+if you do not wish to handle this yourself.
+
 ### .watchIndex(key, index, [options], callback)
 
 This is a convenience method for get with `{wait: true, waitIndex: index}`.
@@ -198,13 +202,17 @@ This is a convenience method for get with `{wait: true, waitIndex: index}`.
 etcd.watchIndex("key", 7, console.log);
 ```
 
+See `.watch()` above.
+
 ### .watcher(key, [index], [options])
 
 Returns an eventemitter for watching for changes on a key
 
 ```javascript
 watcher = etcd.watcher("key");
-watcher.on("change", console.log);
+watcher.on("change", console.log); // Triggers on all changes
+watcher.on("set", console.log);    // Triggers on specific changes (set ops)
+watcher.on("delete", console.log); // Triggers on delete.
 watcher2 = etcd.watcher("key", null, {recursive: true});
 watcher2.on("error", console.log);
 ```
@@ -217,7 +225,13 @@ Signals:
 - `error` - emitted on invalid content
 - `<etcd action>` - the etcd action that triggered the watcher (ex: set, delete).
 - `stop` - watcher was canceled.
-- `resync` - watcher lost sync (etcd clear and outdated the index).
+- `resync` - watcher lost sync (server cleared and outdated the index).
+
+It will handle reconnects and timeouts for you, it will also resync (best
+effort) if it loses sync with Etcd (Etcd only keeps 1000 items in its event
+history - for high frequency setups it's possible to fall behind).
+
+Use the `.watch()` command in you need more direct control.
 
 ### .raw(method, key, value, options, callback)
 
