@@ -1,15 +1,18 @@
 request = require 'request'
 _       = require 'underscore'
 
+
 # Default options for request library
 defaultOptions =
   pool:
     maxSockets: 100
-  followAllRedirects: true
+  followAllRedirects: true,
+  maxRetries: 3
+
 
 # CancellationToken to abort a request
 class CancellationToken
-  constructor: (@hosts) ->
+  constructor: (@servers, @maxRetries, @retries = 0, @errors = []) ->
     @aborted = false
 
   setRequest: (req) =>
@@ -24,6 +27,7 @@ class CancellationToken
 
   cancel: @::abort
 
+
 # HTTP Client for connecting to etcd servers
 class Client
 
@@ -32,8 +36,8 @@ class Client
   execute: (method, options, callback) =>
     opt = _.defaults (_.clone options), defaultOptions, { method: method }
     servers = _.shuffle @hosts
-    token = new CancellationToken servers
-    @_multiserverHelper servers, opt, token, errors = [], callback
+    token = new CancellationToken servers, opt.maxRetries
+    @_multiserverHelper servers, opt, token, callback
     return token
 
   put: (options, callback) => @execute "PUT", options, callback
@@ -43,24 +47,71 @@ class Client
   delete: (options, callback) => @execute "DELETE", options, callback
 
   # Multiserver (cluster) executer
-  _multiserverHelper: (servers, options, token, errors, callback) =>
+  _multiserverHelper: (servers, options, token, callback) =>
     host = _.first(servers)
     options.url = "#{options.serverprotocol}://#{host}#{options.path}"
 
     return if token.isAborted() # Aborted by user?
 
     if not host? # No servers left?
-      error = new Error 'All servers returned error'
-      error.errors = errors
-      return callback error
+      return @_retry token, options, callback if @_shouldRetry token
+      return @_error token, callback
 
-    token.setRequest request options, (err, resp, body) =>
+    reqRespHandler = (err, resp, body) =>
+      return if token.isAborted()
+
       if @_isHttpError err, resp
-        errors.push { server: host, httperror: err, response: resp }
+        token.errors.push
+          server: host
+          httperror: err
+          httpstatus: resp?.statusCode
+          httpbody: resp?.body
+          response: resp
+          timestamp: new Date()
+
         # Recurse:
-        @_multiserverHelper _.rest(servers), options, token, errors, callback
-      else if not token.isAborted()
-        @_handleResponse err, resp, body, callback
+        return @_multiserverHelper _.rest(servers), options, token, callback
+
+      # Deliver response
+      @_handleResponse err, resp, body, callback
+
+    req = request options, reqRespHandler
+    token.setRequest req
+
+
+  _retry: (token, options, callback) =>
+    doRetry = () =>
+      @_multiserverHelper token.servers, options, token, callback
+    waitTime =  @_waitTime token.retries
+    token.retries += 1
+    setTimeout doRetry, waitTime
+
+
+  _waitTime: (retries) ->
+    return 1 if process.env.RUNNING_UNIT_TESTS is 'true'
+    return 100 * Math.pow 16, retries
+
+
+  _shouldRetry: (token) =>
+    token.retries < token.maxRetries and @_isPossibleLeaderElection token.errors
+
+
+  # All tries (all servers, all retries) failed
+  _error: (token, callback) ->
+    error = new Error 'All servers returned error'
+    error.errors = token.errors
+    error.retries = token.retries
+    callback error if callback
+
+
+  # If all servers reject connect or return raft error it's possible the
+  # cluster is in leader election mode.
+  _isPossibleLeaderElection: (errors) ->
+    checkError = (e) ->
+      e?.httperror?.code in ['ECONNREFUSED', 'ECONNRESET'] or
+        e?.httpbody?.errorCode is 300 or
+        /Not current leader/.test e?.httpbody
+    errors? and _.every errors, checkError
 
 
   _isHttpError: (err, resp) ->
