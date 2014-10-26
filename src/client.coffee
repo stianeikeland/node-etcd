@@ -109,7 +109,7 @@ class Client
   _isPossibleLeaderElection: (errors) ->
     checkError = (e) ->
       e?.httperror?.code in ['ECONNREFUSED', 'ECONNRESET'] or
-        e?.httpbody?.errorCode is 300 or
+        e?.httpbody?.errorCode in [300, 301] or
         /Not current leader/.test e?.httpbody
     errors? and _.every errors, checkError
 
