@@ -14,11 +14,11 @@ $ npm install node-etcd
 
 ## Changes
 
-- 3.0.1 - Handle cluster leader election periods better (etcd will disconnect us
+- 3.0.2 - Handle cluster leader election periods better (etcd will disconnect us
   and reject new connections until a new leader is chosen). The client will now
   retry 3 times with exp backoff if it believes a cluster election is in
   progress. Retry count is controllable via the `{ maxRetries: x }` option for a
-  request.
+  request. (npm failed on me and I had to publish as 3.0.2)
 - 3.0.0 - Added cluster support, library now accepts a list of servers to
   connect to, see constructor changes below. All requests now return a
   cancellation token, meaning you can cancel requests by calling .cancel() or
