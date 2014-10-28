@@ -3,10 +3,12 @@ _       = require 'underscore'
 
 
 # Default options for request library
-defaultOptions =
+defaultRequestOptions =
   pool:
     maxSockets: 100
-  followAllRedirects: true,
+  followAllRedirects: true
+
+defaultClientOptions =
   maxRetries: 3
 
 
@@ -34,11 +36,14 @@ class Client
   constructor: (@hosts, @sslopts) ->
 
   execute: (method, options, callback) =>
-    opt = _.defaults (_.clone options), defaultOptions, { method: method }
+    opt = _.defaults (_.clone options), defaultRequestOptions, { method: method }
+    opt.clientOptions = _.defaults opt.clientOptions, defaultClientOptions
+
     servers = _.shuffle @hosts
-    token = new CancellationToken servers, opt.maxRetries
+    token = new CancellationToken servers, opt.clientOptions.maxRetries
     @_multiserverHelper servers, opt, token, callback
     return token
+
 
   put: (options, callback) => @execute "PUT", options, callback
   get: (options, callback) => @execute "GET", options, callback

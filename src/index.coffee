@@ -194,8 +194,11 @@ class Etcd
 
 
   # Prepare request options
-  _prepareOpts: (path, apiVersion = "/v2", value = null, queryString = null) ->
+  _prepareOpts: (path, apiVersion = "/v2", value = null, allOpts = {}) ->
     serverprotocol = "http"
+
+    queryString = _.omit allOpts, 'maxRetries'
+    clientOptions = _.pick allOpts, 'maxRetries'
 
     # Set up HttpsAgent if sslopts {ca, key, cert} are given
     if @sslopts?
@@ -208,7 +211,8 @@ class Etcd
       serverprotocol: serverprotocol
       json: true
       agent: httpsagent if httpsagent?
-      qs: queryString if queryString?
+      qs: queryString
+      clientOptions: clientOptions
       form: { value: value } if value?
     }
 
