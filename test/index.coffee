@@ -2,6 +2,9 @@ should = require 'should'
 nock = require 'nock'
 Etcd = require '../src/index.coffee'
 
+# Set env var to skip timeouts
+process.env.RUNNING_UNIT_TESTS = true
+
 # Helpers
 
 getNock = (host = 'http://127.0.0.1:4001') ->
@@ -286,3 +289,21 @@ describe 'Multiserver/Cluster support', ->
       err.should.be.an.instanceOf Error
       err.errors.should.have.lengthOf 2
       done()
+
+
+  describe 'when cluster is doing leader elect', () ->
+
+    it 'should retry on connection refused', (done) ->
+      etcd = new Etcd ("localhost:#{p}" for p in [47187, 47188, 47189])
+      token = etcd.set 'a', 'b', (err) ->
+        err.errors.length.should.be.exactly 12
+        token.errors.length.should.be.exactly 12
+        token.retries.should.be.exactly 3
+        done()
+
+    it 'should allow maxRetries to control number of retries', (done) ->
+      etcd = new Etcd ("localhost:#{p}" for p in [47187, 47188, 47189])
+      token = etcd.set 'a', 'b', { maxRetries: 1 }, (err) ->
+        err.errors.length.should.be.exactly 6
+        token.retries.should.be.exactly 1
+        done()

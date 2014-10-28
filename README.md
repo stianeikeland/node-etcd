@@ -14,6 +14,11 @@ $ npm install node-etcd
 
 ## Changes
 
+- 3.0.1 - Handle cluster leader election periods better (etcd will disconnect us
+  and reject new connections until a new leader is chosen). The client will now
+  retry 3 times with exp backoff if it believes a cluster election is in
+  progress. Retry count is controllable via the `{ maxRetries: x }` option for a
+  request.
 - 3.0.0 - Added cluster support, library now accepts a list of servers to
   connect to, see constructor changes below. All requests now return a
   cancellation token, meaning you can cancel requests by calling .cancel() or
@@ -67,7 +72,9 @@ etcd = new Etcd('127.0.0.1', '4001');
 
 Create a new etcd client for a clustered etcd setup. Client will connect to
 servers in random order. On failure it will try the next server. When all
-servers have failed it will callback with error.
+servers have failed it will callback with error. If it suspects the cluster is
+in leader election mode it will retry up to 3 times with exp backoff. Number of
+retries can be controlled by adding `{ maxRetries: x }` as an option to requests.
 
 ```javascript
 etcd = new Etcd(['127.0.0.1:4001','192.168.1.1:4001']);
@@ -82,6 +89,7 @@ etcd.set("key");
 etcd.set("key", "value");
 etcd.set("key", "value", console.log);
 etcd.set("key", "value", { ttl: 60 }, console.log);
+etcd.set("key", "value", { maxRetries: 3 }, console.log);
 ```
 
 Available options include:
