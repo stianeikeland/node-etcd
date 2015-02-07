@@ -31,11 +31,11 @@
     "watch": "node_modules/mocha/bin/mocha --compilers coffee:coffee-script --watch"
   },
   "dependencies": {
+    "coffee-script": "~1.6.3",
     "underscore": "~1.5.2",
     "request": "~2.44.0"
   },
   "devDependencies": {
-    "coffee-script": "~1.6.3",
     "mocha": "~1.17.1",
     "should": "~3.1.2",
     "nock": "~0.27.2"
