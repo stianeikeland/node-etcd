@@ -1,5 +1,6 @@
-request = require 'request'
-_       = require 'underscore'
+request     = require 'request'
+requestsync = require 'requestsync'
+_           = require 'underscore'
 
 
 # Default options for request library
@@ -41,8 +42,11 @@ class Client
 
     servers = _.shuffle @hosts
     token = new CancellationToken servers, opt.clientOptions.maxRetries
-    @_multiserverHelper servers, opt, token, callback
-    return token
+    helperRequest = @_multiserverHelper servers, opt, token, callback
+    if options.synchronous is true
+      return helperRequest
+    else
+      return token
 
 
   put: (options, callback) => @execute "PUT", options, callback
@@ -50,6 +54,9 @@ class Client
   post: (options, callback) => @execute "POST", options, callback
   patch: (options, callback) => @execute "PATCH", options, callback
   delete: (options, callback) => @execute "DELETE", options, callback
+
+  error: null
+  body: null
 
   # Multiserver (cluster) executer
   _multiserverHelper: (servers, options, token, callback) =>
@@ -80,8 +87,19 @@ class Client
       # Deliver response
       @_handleResponse err, resp, body, callback
 
-    req = request options, reqRespHandler
-    token.setRequest req
+    syncRespHandler = (err, body, headers) =>
+      msg =
+        err: err
+        body: body
+        headers: headers
+
+    if options.synchronous is true
+      req = requestsync options
+      callback = syncRespHandler
+      reqRespHandler req.err, req.resp, req.body 
+    else
+      req = request options, reqRespHandler
+      token.setRequest req
 
 
   _retry: (token, options, callback) =>
