@@ -55,9 +55,6 @@ class Client
   patch: (options, callback) => @execute "PATCH", options, callback
   delete: (options, callback) => @execute "DELETE", options, callback
 
-  error: null
-  body: null
-
   # Multiserver (cluster) executer
   _multiserverHelper: (servers, options, token, callback) =>
     host = _.first(servers)

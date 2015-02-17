@@ -87,7 +87,7 @@ class Etcd
   #   .del("key", {recursive: true}))
   delSync: (key, options = {}) ->
     options.synchronous = true
-    this.del key, options, callback
+    this.del key, options
 
   # Make a directory
   # Usage:
