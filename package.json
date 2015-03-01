@@ -24,11 +24,11 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "build": "node_modules/coffee-script/bin/coffee --bare --compile --output lib/ src/*.coffee",
-    "prepublish": "node_modules/coffee-script/bin/coffee --bare --compile --output lib/ src/*.coffee",
+    "build": "node_modules/.bin/coffee --bare --compile --output lib/ src/*.coffee",
+    "prepublish": "node_modules/.bin/coffee --bare --compile --output lib/ src/*.coffee",
     "postpublish": "rm -rf lib",
     "test": "node_modules/.bin/mocha --compilers coffee:coffee-script/register test/",
-    "watch": "node_modules/mocha/bin/mocha --compilers coffee:coffee-script --watch"
+    "watch": "node_modules/.bin/mocha --compilers coffee:coffee-script --watch"
   },
   "dependencies": {
     "underscore": "~1.8.2",
