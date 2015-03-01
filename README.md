@@ -8,12 +8,26 @@ Travis-CI: [![Build Status](https://travis-ci.org/stianeikeland/node-etcd.png?br
 
 ## Install
 
+For nodejs >= 0.10 and iojs:
+
 ```
 $ npm install node-etcd
 ```
 
+For nodejs == 0.8:
+
+```
+$ npm install node-etcd@3.0.2
+```
+
 ## Changes
 
+- 4.0.0
+  - Adds support for synchronous operations (@brockwood) - See
+    [Synchronous Operations](#synchronous-operations).
+  - Adds support for iojs.
+  - Drops support for nodejs 0.8 (use v3.x.x).
+  - Upgrade dependencies.
 - 3.0.2 - Handle cluster leader election periods better (etcd will disconnect us
   and reject new connections until a new leader is chosen). The client will now
   retry 3 times with exp backoff if it believes a cluster election is in
@@ -287,10 +301,10 @@ etcd.selfStats(console.log);
 
 ## Synchronous operations
 
-The library supports a set of synchronous/blocking operations that can be useful during
-program startup (like [fs.readFileSync](http://nodejs.org/api/fs.html#fs_fs_readfilesync_filename_options)).
+The library supports a set of basic synchronous/blocking operations that can be useful during
+program startup (used like [fs.readFileSync](http://nodejs.org/api/fs.html#fs_fs_readfilesync_filename_options)).
 
-Synchronous functions preform the etcd request immediately while blocking and return the following:
+Synchronous functions perform the etcd request immediately (blocking) and return the following:
 
 ```javascript
 {
