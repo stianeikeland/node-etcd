@@ -101,19 +101,6 @@ Available options include:
 
 Will create a directory when used without value (value=null): `etcd.set("directory/");`
 
-### .setSync(key, value = null, [options])
-
-Synchronously set key to value, or create key/directory.
-
-```javascript
-etcd.set("key");
-etcd.set("key", "value");
-etcd.set("key", "value", { ttl: 60 });
-etcd.set("key", "value", { maxRetries: 3 });
-```
-
-Same options and function as .set().
-
 ### .compareAndSwap(key, value, oldvalue, [options], [callback])
 
 Convenience method for test and set (set with {prevValue: oldvalue})
@@ -140,15 +127,6 @@ Available options include:
 - `wait` (bool, wait for changes to key)
 - `waitIndex` (wait for changes after given index)
 
-### .getSync(key, [options])
-
-Get a key or path.
-
-```javascript
-etcd.get("key");
-etcd.get("key", { recursive: true });
-```
-
 ### .del(key, [options], [callback])
 
 Delete a key or path
@@ -164,17 +142,6 @@ Available options include:
 - `recursive` (bool, delete recursively)
 
 Alias: `.delete()`
-
-### .delSync(key, [options])
-
-Synchronously delete a key or path
-
-```javascript
-etcd.del("key");
-etcd.del("key/", { recursive: true });
-```
-
-The available options are the same as .del() above.
 
 ### .compareAndDelete(key, oldvalue, [options], [callback])
 
@@ -197,15 +164,6 @@ etcd.mkdir("dir", console.log);
 etcd.mkdir("dir/", options, console.log);
 ```
 
-### .mkdirSync(dir, [options])
-
-Synchronously create a directory
-
-```javascript
-etcd.mkdir("dir");
-etcd.mkdir("dir/", options);
-```
-
 ### .rmdir(dir, [options], [callback])
 
 Remove a directory
@@ -219,17 +177,6 @@ etcd.rmdir("dir/", { recursive: true }, console.log);
 Available options include:
 
 - `recursive` (bool, delete recursively)
-
-### .rmdirSync(dir, [options])
-
-Synchronously remove a directory
-
-```javascript
-etcd.rmdir("dir");
-etcd.rmdir("dir/", { recursive: true });
-```
-
-The available options are the same as .rmdir() above.
 
 ### .create(path, value, [options], [callback])
 
@@ -338,9 +285,77 @@ Return statistics about connected etcd node
 etcd.selfStats(console.log);
 ```
 
+## Synchronous operations
+
+The library supports a set of synchronous/blocking operations that can be useful during
+program startup (like [fs.readFileSync](http://nodejs.org/api/fs.html#fs_fs_readfilesync_filename_options)).
+
+Synchronous functions preform the etcd request immediately while blocking and return the following:
+
+```javascript
+{
+  err // Error message or null if request completed successfully
+  body // Body of the message or null if error
+  headers // Headers from the response
+}
+```
+
+### .setSync(key, value = null, [options])
+
+Synchronously set key to value, or create key/directory.
+
+```javascript
+etcd.set("key");
+etcd.set("key", "value");
+etcd.set("key", "value", { ttl: 60 });
+etcd.set("key", "value", { maxRetries: 3 });
+```
+
+Same options and function as .set().
+
+### .getSync(key, [options])
+
+Get a key or path.
+
+```javascript
+etcd.get("key");
+etcd.get("key", { recursive: true });
+```
+
+### .delSync(key, [options])
+
+Synchronously delete a key or path
+
+```javascript
+etcd.del("key");
+etcd.del("key/", { recursive: true });
+```
+
+The available options are the same as .del() above.
+
+### .mkdirSync(dir, [options])
+
+Synchronously create a directory
+
+```javascript
+etcd.mkdir("dir");
+etcd.mkdir("dir/", options);
+```
+
+### .rmdirSync(dir, [options])
+
+Synchronously remove a directory
+
+```javascript
+etcd.rmdir("dir");
+etcd.rmdir("dir/", { recursive: true });
+```
+
+The available options are the same as .rmdir() above.
+
 ## Aborting a request
 
-All requests will return a cancellation token, to abort a request, do
+All async requests will return a cancellation token, to abort a request, do
 the following:
 
 ```javascript
@@ -368,18 +383,6 @@ sslopts = {
 };
 
 etcdssl = new Etcd('localhost', '4001', sslopts);
-```
-
-## Synchronous Support
-
-All functions above that have a 'Sync' suffix preform the etcd request immediately and then return the following:
-
-```javascript
-{
-  err // Error message or null if request completed successfully
-  body // Body of the message or null if error
-  headers // Headers from the response
-}
 ```
 
 ## FAQ:
