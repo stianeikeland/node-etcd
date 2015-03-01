@@ -1,5 +1,6 @@
-request = require 'request'
-_       = require 'underscore'
+request     = require 'request'
+deasync     = require 'deasync'
+_           = require 'underscore'
 
 
 # Default options for request library
@@ -41,8 +42,11 @@ class Client
 
     servers = _.shuffle @hosts
     token = new CancellationToken servers, opt.clientOptions.maxRetries
-    @_multiserverHelper servers, opt, token, callback
-    return token
+    syncResp = @_multiserverHelper servers, opt, token, callback
+    if options.synchronous is true
+      return syncResp
+    else
+      return token
 
 
   put: (options, callback) => @execute "PUT", options, callback
@@ -54,6 +58,8 @@ class Client
   # Multiserver (cluster) executer
   _multiserverHelper: (servers, options, token, callback) =>
     host = _.first(servers)
+    syncmsg = null
+    syncdone = false
     options.url = "#{options.serverprotocol}://#{host}#{options.path}"
 
     return if token.isAborted() # Aborted by user?
@@ -80,8 +86,22 @@ class Client
       # Deliver response
       @_handleResponse err, resp, body, callback
 
+    syncRespHandler = (err, body, headers) =>
+      syncdone = true
+      syncmsg =
+        err: err
+        body: body
+        headers: headers
+    callback = syncRespHandler if options.synchronous is true
+
     req = request options, reqRespHandler
     token.setRequest req
+
+    if options.synchronous is true
+      deasync.runLoopOnce() while !syncdone
+      return syncmsg
+    else
+      return req
 
 
   _retry: (token, options, callback) =>
