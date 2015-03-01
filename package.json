@@ -20,27 +20,27 @@
     "url": "http://github.com/stianeikeland/node-etcd.git"
   },
   "engines": {
-    "node": ">= 0.8.0"
+    "node": ">= 0.10.0"
   },
   "main": "lib/index.js",
   "scripts": {
     "build": "node_modules/coffee-script/bin/coffee --bare --compile --output lib/ src/*.coffee",
     "prepublish": "node_modules/coffee-script/bin/coffee --bare --compile --output lib/ src/*.coffee",
     "postpublish": "rm -rf lib",
-    "test": "node_modules/mocha/bin/mocha --compilers coffee:coffee-script",
-    "watch": "node_modules/mocha/bin/mocha --compilers coffee:coffee-script --watch",
-    "test-sync": "node_modules/mocha/bin/mocha --compilers coffee:coffee-script test/sync/sync.coffee"
+    "test": "node_modules/.bin/mocha --compilers coffee:coffee-script/register test/",
+    "watch": "node_modules/mocha/bin/mocha --compilers coffee:coffee-script --watch"
   },
   "dependencies": {
-    "underscore": "~1.5.2",
-    "request": "~2.44.0",
-    "requestsync": "~0.2.0"
+    "underscore": "~1.8.2",
+    "request": "~2.53.0",
+    "deasync": "~0.0.10"
   },
   "devDependencies": {
-    "coffee-script": "~1.6.3",
-    "mocha": "~1.17.1",
-    "should": "~3.1.2",
-    "nock": "~0.27.2"
+    "coffee-script": "~1.9.1",
+    "mocha": "~2.1.0",
+    "nock": "~0.59.0",
+    "restify": "~2.8.5",
+    "should": "~3.1.2"
   },
   "keywords": ["etcd", "raft"]
 }
