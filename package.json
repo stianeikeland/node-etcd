@@ -28,7 +28,7 @@
     "prepublish": "node_modules/.bin/coffee --bare --compile --output lib/ src/*.coffee",
     "postpublish": "rm -rf lib",
     "test": "node_modules/.bin/mocha --compilers coffee:coffee-script/register test/",
-    "watch": "node_modules/.bin/mocha --compilers coffee:coffee-script --watch"
+    "watch": "node_modules/.bin/mocha --compilers coffee:coffee-script/register --watch"
   },
   "dependencies": {
     "underscore": "~1.8.2",
