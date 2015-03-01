@@ -23,7 +23,7 @@ describe 'Utility', ->
 
   describe '#_prepareOpts()', ->
     it 'should return default request options', ->
-      etcd._prepareOpts('keypath/key').should.include {
+      etcd._prepareOpts('keypath/key').should.containEql {
         json: true
         path: '/v2/keypath/key'
       }
@@ -34,7 +34,7 @@ describe 'Basic functions', ->
 
   checkVal = (done) ->
     (err, val) ->
-      val.should.include { value: "value" }
+      val.should.containEql { value: "value" }
       done err, val
 
   describe '#get()', ->
@@ -120,7 +120,7 @@ describe 'Basic functions', ->
         .reply(200, '{"action":"create", "node":{"key":"/dir/2"}}')
 
       etcd.create 'dir', 'value', (err, val) ->
-        val.should.include { action: "create" }
+        val.should.containEql { action: "create" }
         done err, val
 
   describe '#post()', ->
@@ -153,9 +153,9 @@ describe 'Basic functions', ->
         .put('/v2/keys/key?dir=true')
         .reply(200, '{"action":"create","node":{"key":"/key","dir":true,"modifiedIndex":1,"createdIndex":1}}')
       etcd.mkdir 'key', (err, val) ->
-        val.should.include {action: "create"}
-        val.node.should.include {key: "/key"}
-        val.node.should.include {dir: true}
+        val.should.containEql {action: "create"}
+        val.node.should.containEql {key: "/key"}
+        val.node.should.containEql {dir: true}
         done()
 
   describe '#mkdirSync()', ->
@@ -164,9 +164,9 @@ describe 'Basic functions', ->
         .put('/v2/keys/key?dir=true')
         .reply(200, '{"action":"create","node":{"key":"/key","dir":true,"modifiedIndex":1,"createdIndex":1}}')
       val = etcd.mkdirSync 'key'
-      val.body.should.include {action: "create"}
-      val.body.node.should.include {key: "/key"}
-      val.body.node.should.include {dir: true}
+      val.body.should.containEql {action: "create"}
+      val.body.node.should.containEql {key: "/key"}
+      val.body.node.should.containEql {dir: true}
       done()
 
   describe '#rmdir()', ->
@@ -179,8 +179,8 @@ describe 'Basic functions', ->
       getNock().delete('/v2/keys/key?dir=true')
         .reply(200, '{"action":"delete","node":{"key":"/key","dir":true,"modifiedIndex":1,"createdIndex":3}}')
       val = etcd.rmdirSync 'key'
-      val.body.should.include {action: "delete"}
-      val.body.node.should.include {dir: true}
+      val.body.should.containEql {action: "delete"}
+      val.body.node.should.containEql {dir: true}
       done()
 
   describe '#del()', ->
@@ -192,7 +192,7 @@ describe 'Basic functions', ->
     it 'should synchronously delete a given key in etcd', (done) ->
       getNock().delete('/v2/keys/key2').reply(200, '{"action":"delete"}')
       val = etcd.delSync 'key2'
-      val.body.should.include {action: "delete"}
+      val.body.should.containEql {action: "delete"}
       done()
 
   describe '#watch()', ->

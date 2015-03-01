@@ -39,7 +39,7 @@
     "coffee-script": "~1.9.1",
     "mocha": "~2.1.0",
     "nock": "~0.59.0",
-    "should": "~3.1.2"
+    "should": "~5.0.1"
   },
   "keywords": ["etcd", "raft"]
 }

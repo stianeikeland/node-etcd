@@ -31,7 +31,7 @@ describe 'Watcher', ->
     w = new Watcher etcd, 'key'
 
     w.on 'change', (val) ->
-      val.should.include { node: { modifiedIndex: 0 } }
+      val.should.containEql { node: { modifiedIndex: 0 } }
       done()
 
     etcd.change null, { node: { modifiedIndex: 0 } }
@@ -41,7 +41,7 @@ describe 'Watcher', ->
     w = new Watcher etcd, 'key'
 
     w.on 'reconnect', (err) ->
-      err.should.include { error: "error" }
+      err.should.containEql { error: "error" }
       done()
 
     etcd.change "error", null
@@ -66,7 +66,7 @@ describe 'Watcher', ->
     etcd = new FakeEtcd
 
     etcd.watch = (key, opt, cb) ->
-      opt.should.include { recursive: true }
+      opt.should.containEql { recursive: true }
       done()
 
     w = new Watcher etcd, 'key', null, { recursive: true }
