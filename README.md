@@ -319,10 +319,10 @@ Synchronous functions perform the etcd request immediately (blocking) and return
 Synchronously set key to value, or create key/directory.
 
 ```javascript
-etcd.set("key");
-etcd.set("key", "value");
-etcd.set("key", "value", { ttl: 60 });
-etcd.set("key", "value", { maxRetries: 3 });
+etcd.setSync("key");
+etcd.setSync("key", "value");
+etcd.setSync("key", "value", { ttl: 60 });
+etcd.setSync("key", "value", { maxRetries: 3 });
 ```
 
 Same options and function as .set().
@@ -332,8 +332,8 @@ Same options and function as .set().
 Get a key or path.
 
 ```javascript
-etcd.get("key");
-etcd.get("key", { recursive: true });
+etcd.getSync("key");
+etcd.getSync("key", { recursive: true });
 ```
 
 ### .delSync(key, [options])
@@ -341,8 +341,8 @@ etcd.get("key", { recursive: true });
 Synchronously delete a key or path
 
 ```javascript
-etcd.del("key");
-etcd.del("key/", { recursive: true });
+etcd.delSync("key");
+etcd.delSync("key/", { recursive: true });
 ```
 
 The available options are the same as .del() above.
@@ -352,8 +352,8 @@ The available options are the same as .del() above.
 Synchronously create a directory
 
 ```javascript
-etcd.mkdir("dir");
-etcd.mkdir("dir/", options);
+etcd.mkdirSync("dir");
+etcd.mkdirSync("dir/", options);
 ```
 
 ### .rmdirSync(dir, [options])
@@ -361,8 +361,8 @@ etcd.mkdir("dir/", options);
 Synchronously remove a directory
 
 ```javascript
-etcd.rmdir("dir");
-etcd.rmdir("dir/", { recursive: true });
+etcd.rmdirSync("dir");
+etcd.rmdirSync("dir/", { recursive: true });
 ```
 
 The available options are the same as .rmdir() above.
