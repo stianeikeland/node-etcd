@@ -22,6 +22,8 @@ $ npm install node-etcd@3.0.2
 
 ## Changes
 
+- 4.0.1
+  - Minor fixes for syncronous operations, better handling of server failure.
 - 4.0.0
   - Adds support for synchronous operations (@brockwood) - See
     [Synchronous Operations](#synchronous-operations).
