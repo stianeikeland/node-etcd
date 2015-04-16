@@ -230,27 +230,21 @@ class Etcd
 
   # Prepare request options
   _prepareOpts: (path, apiVersion = "/v2", value = null, allOpts = {}) ->
-    serverprotocol = "http"
+    serverprotocol = if @sslopts? then "https" else "http"
 
     queryString = _.omit allOpts, 'maxRetries', 'synchronous'
 
     clientOptions = _.pick allOpts, 'maxRetries'
 
-    # Set up HttpsAgent if sslopts {ca, key, cert} are given
-    if @sslopts?
-      serverprotocol = "https"
-      httpsagent = new HttpsAgent
-      _.extend httpsagent.options, @sslopts
-
     opt = {
       path: "#{apiVersion}/#{path}"
       serverprotocol: serverprotocol
       json: true
-      agent: httpsagent if httpsagent?
       qs: queryString
       clientOptions: clientOptions
       synchronous: allOpts.synchronous
       form: { value: value } if value?
+      agentOptions: @sslopts if @sslopts?
     }
 
 

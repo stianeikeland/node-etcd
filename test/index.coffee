@@ -259,12 +259,12 @@ describe 'SSL support', ->
     opt = etcdssl._prepareOpts 'path'
     opt.serverprotocol.should.equal "https"
 
-  it 'should create https.agent and set ca if ca is given', ->
+  it 'should set ca if ca is given', ->
     etcdsslca = new Etcd 'localhost', '4001', {ca: ['ca']}
     opt = etcdsslca._prepareOpts 'path'
-    should.exist opt.agent
-    should.exist opt.agent.options.ca
-    opt.agent.options.ca.should.eql ['ca']
+    should.exist opt.agentOptions
+    should.exist opt.agentOptions.ca
+    opt.agentOptions.ca.should.eql ['ca']
 
   it 'should connect to https if sslopts is given', (done) ->
     getNock('https://localhost:4001')
