@@ -22,6 +22,9 @@ $ npm install node-etcd@3.0.2
 
 ## Changes
 
+- 4.0.2
+  - 307 redirects from etcd 0.4.x clusters when using SSL didn't work properly
+  because of a change in the underlying request library. See issue #39
 - 4.0.1
   - Minor fixes for syncronous operations, better handling of server failure.
 - 4.0.0
