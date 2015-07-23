@@ -22,6 +22,10 @@ $ npm install node-etcd@3.0.2
 
 ## Changes
 
+- 4.1.0
+  - Bumps request[https://github.com/request/request] library version to
+  v2.60.0, this solves an issue with HTTP proxies. `HTTP_PROXY` and `NO_PROXY`
+  env variables should now work as expected for all requests. See issue #40
 - 4.0.2
   - 307 redirects from etcd 0.4.x clusters when using SSL didn't work properly
   because of a change in the underlying request library. See issue #39
