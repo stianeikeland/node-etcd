@@ -1,7 +1,5 @@
 language: node_js
 sudo: false
-before_script:
-  - "npm explore npm -g -- npm install node-gyp@latest"
 node_js:
   - "iojs-v3.2.0"
   - "iojs"
@@ -9,4 +7,13 @@ node_js:
   - "0.12"
   - "0.11"
   - "0.10"
-
+install:
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-4.8
+    - g++-4.8
+    - clang
