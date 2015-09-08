@@ -1,5 +1,7 @@
 language: node_js
 sudo: false
+before_script:
+  - "npm explore npm -g -- npm install node-gyp@latest"
 node_js:
   - "iojs-v3.2.0"
   - "iojs"
