@@ -22,6 +22,8 @@ $ npm install node-etcd@3.0.2
 
 ## Changes
 
+- 4.2.1
+  - Newer deasync fixes issues with iojs 3.3.0 and nodejs 4.0.0.
 - 4.1.0
   - Bumps [request](https://github.com/request/request) library version to
   v2.60.0, this solves an issue with HTTP proxies. `HTTP_PROXY` and `NO_PROXY`
