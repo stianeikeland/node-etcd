@@ -1,7 +1,19 @@
 language: node_js
+sudo: false
 node_js:
+  - "iojs-v3.2.0"
   - "iojs"
+  - "4.0.0"
   - "0.12"
   - "0.11"
   - "0.10"
-
+env:
+  - CXX="g++-4.8" CC="gcc-4.8"
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-4.8
+    - g++-4.8
+    - clang
