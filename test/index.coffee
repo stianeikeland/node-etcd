@@ -10,6 +10,10 @@ process.env.RUNNING_UNIT_TESTS = true
 getNock = (host = 'http://127.0.0.1:4001') ->
   nock host
 
+
+beforeEach () ->
+  nock.cleanAll()
+
 # Tests for utility functions
 
 describe 'Utility', ->
@@ -27,6 +31,57 @@ describe 'Utility', ->
         json: true
         path: '/v2/keypath/key'
       }
+
+
+describe 'Connecting', ->
+
+  mock = (host = 'http://127.0.0.1:4001/') ->
+    nock(host)
+      .get('/v2/keys/key')
+      .reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
+
+  it 'should support empty constructor (localhost:4001)', (done) ->
+    etcd = new Etcd
+    m = mock()
+    etcd.get 'key', (err, val) ->
+      m.isDone().should.be.true
+      done err, val
+
+  it 'should support string as connect host', (done) ->
+    etcd = new Etcd "testhost.com:4009"
+    m = mock("http://testhost.com:4009")
+    etcd.get 'key', (err, val) ->
+      m.isDone().should.be.true
+      done err, val
+
+  it 'should support string prefixed by http:// as host', (done) ->
+    etcd = new Etcd "http://testhost.com:4009"
+    m = mock("http://testhost.com:4009")
+    etcd.get 'key', (err, val) ->
+      m.isDone().should.be.true
+      done err, val
+
+  it 'should support string postfixed by / as host', (done) ->
+    etcd = new Etcd "http://testhost.com:4009/"
+    m = mock("http://testhost.com:4009")
+    etcd.get 'key', (err, val) ->
+      m.isDone().should.be.true
+      done err, val
+
+  it 'should support array of strings as host', (done) ->
+    etcd = new Etcd ["http://testhost.com:4009"]
+    m = mock("http://testhost.com:4009")
+    etcd.get 'key', (err, val) ->
+      m.isDone().should.be.true
+      done err, val
+
+  it 'should support https strings', (done) ->
+    etcd = new Etcd ["https://testhost.com:1000"]
+    m = mock("https://testhost.com:1000")
+    etcd.get 'key', (err, val) ->
+      m.isDone().should.be.true
+      done err, val
+
 
 describe 'Basic functions', ->
 
@@ -308,13 +363,7 @@ describe 'Multiserver/Cluster support', ->
 
   it 'should accept list of servers in constructor', ->
     etcd = new Etcd ['localhost:4001', 'localhost:4002']
-    etcd.getHosts().should.eql ['localhost:4001', 'localhost:4002']
-
-
-  it 'should accept host and port in constructor', ->
-    etcd = new Etcd 'localhost', 4001
-    etcd.getHosts().should.eql ['localhost:4001']
-
+    etcd.getHosts().should.eql ['http://localhost:4001', 'http://localhost:4002']
 
   it 'should try next server in list on http error', (done) ->
     path = '/v2/keys/foo'

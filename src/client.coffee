@@ -34,11 +34,11 @@ class CancellationToken
 # HTTP Client for connecting to etcd servers
 class Client
 
-  constructor: (@hosts, @sslopts) ->
+  constructor: (@hosts, @options, @sslopts) ->
     @syncmsg = {}
 
   execute: (method, options, callback) =>
-    opt = _.defaults (_.clone options), defaultRequestOptions, { method: method }
+    opt = _.defaults (_.clone options), @options, defaultRequestOptions, { method: method }
     opt.clientOptions = _.defaults opt.clientOptions, defaultClientOptions
 
     servers = _.shuffle @hosts
@@ -59,7 +59,7 @@ class Client
   # Multiserver (cluster) executer
   _multiserverHelper: (servers, options, token, callback) =>
     host = _.first(servers)
-    options.url = "#{options.serverprotocol}://#{host}#{options.path}"
+    options.url = "#{host}#{options.path}"
 
     return if token.isAborted() # Aborted by user?
 
