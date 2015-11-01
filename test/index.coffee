@@ -83,6 +83,27 @@ describe 'Connecting', ->
       done err, val
 
 
+describe 'Basic auth', ->
+
+  it 'should support basic auth', (done) ->
+    auth =
+      user: "username"
+      pass: "password"
+    etcd = new Etcd "localhost:4001", { auth: auth }
+
+    m = nock("http://localhost:4001")
+      .get("/v2/keys/key")
+      .basicAuth(
+        user: "username",
+        pass: "password"
+      )
+      .reply(200)
+
+    etcd.get 'key', (err, val) ->
+      m.isDone().should.be.true
+      done err, val
+
+
 describe 'Basic functions', ->
 
   etcd = new Etcd
