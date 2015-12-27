@@ -29,7 +29,7 @@ class CancellationToken
     @req.abort() if @req?
 
   cancel: @::abort
-
+  wasAborted: @::isAborted
 
 # HTTP Client for connecting to etcd servers
 class Client

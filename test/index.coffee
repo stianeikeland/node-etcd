@@ -362,16 +362,16 @@ describe 'Cancellation Token', ->
 
   it 'should stop execution on abort', (done) ->
     http = getNock()
+      .log(console.log)
       .get('/v2/keys/key')
       .reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
     etcd = new Etcd '127.0.0.1', 4001
 
-    token = etcd.version () -> throw new Error "Version call should have been aborted"
+    # This sucks a bit.. are there any better way of checking that a callback
+    # does not happen?
+    token = etcd.get "key", () -> throw new Error "Call should have been aborted"
     token.abort()
-
-    etcd.get 'key', () ->
-      http.isDone().should.be.true
-      done()
+    setTimeout done, 50
 
 
 describe 'Multiserver/Cluster support', ->
