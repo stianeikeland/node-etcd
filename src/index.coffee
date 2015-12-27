@@ -260,13 +260,13 @@ class Etcd
       [options, callback]
 
   # Make sure hosts is a list, make sure all have protocol added
-  # defaults to http
+  # defaults to http and remove trailing slash
   _cleanHostList: (hosts) ->
     hostlist = if _.isArray(hosts) then hosts else [hosts]
     hostlist.map (host) ->
       url = new URL(host)
       url.set 'protocol', 'http:' if url.protocol is ''
-      url.href
+      url.href.replace /\/$/, "" # Trailing slash
 
 
 exports = module.exports = Etcd
