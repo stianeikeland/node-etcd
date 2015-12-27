@@ -40,7 +40,8 @@
     "coffee-script": "^1.9.1",
     "mocha": "^2.1.0",
     "nock": "^2.17.0",
-    "should": "^5.0.1"
+    "should": "^5.0.1",
+    "simple-mock": "^0.5.0"
   },
   "keywords": [
     "etcd",

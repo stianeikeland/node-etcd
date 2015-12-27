@@ -1,6 +1,9 @@
 should = require 'should'
 nock = require 'nock'
+simple = require 'simple-mock'
 Etcd = require '../src/index.coffee'
+
+
 
 # Set env var to skip timeouts
 process.env.RUNNING_UNIT_TESTS = true
@@ -330,25 +333,19 @@ describe 'Basic functions', ->
 
 describe 'SSL support', ->
 
-  it 'should use https url if sslopts is given', ->
-    etcdssl = new Etcd 'localhost', '4001', {}
-    opt = etcdssl._prepareOpts 'path'
-    opt.serverprotocol.should.equal "https"
+  beforeEach () ->
+    nock.cleanAll()
 
-  it 'should set ca if ca is given', ->
-    etcdsslca = new Etcd 'localhost', '4001', {ca: ['ca']}
-    opt = etcdsslca._prepareOpts 'path'
-    should.exist opt.agentOptions
-    should.exist opt.agentOptions.ca
-    opt.agentOptions.ca.should.eql ['ca']
+  it 'passes ssl options to request lib', (done) ->
+    etcdssl = new Etcd 'https://localhost:4009', {ca: 'myca', cert: 'mycert', key: 'mykey'}
+    simple.mock(etcdssl.client, "_doRequest").callFn (options) ->
+      options.should.containEql
+        ca: 'myca'
+        cert: 'mycert'
+        key: 'mykey'
+      done()
 
-  it 'should connect to https if sslopts is given', (done) ->
-    getNock('https://localhost:4001')
-      .get('/v2/keys/key')
-      .reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
-
-    etcdssl = new Etcd ['localhost:4001'], {ca: ['ca']}
-    etcdssl.get 'key', done
+    etcdssl.get 'key'
 
 
 describe 'Cancellation Token', ->

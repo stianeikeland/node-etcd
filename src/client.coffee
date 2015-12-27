@@ -93,7 +93,7 @@ class Client
         headers: headers
     callback = syncRespHandler if options.synchronous is true
 
-    req = request options, reqRespHandler
+    req = @_doRequest options, reqRespHandler
     token.setRequest req
 
     if options.synchronous is true and options.syncdone is undefined
@@ -103,6 +103,10 @@ class Client
       return @syncmsg
     else
       return req
+
+
+  _doRequest: (options, reqRespHandler) ->
+    request options, reqRespHandler
 
 
   _retry: (token, options, callback) =>
