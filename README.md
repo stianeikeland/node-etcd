@@ -22,6 +22,10 @@ $ npm install node-etcd@3.0.2
 
 ## Changes
 
+- 5.0.0
+  - Supports basic auth, timeout, etc. See options.
+  - **Breaking**: Constructor changes (see below)
+  - **Breaking**: Must provide https url to use https
 - 4.2.1
   - Newer deasync fixes issues with iojs 3.3.0 and nodejs 4.0.0.
 - 4.1.0
@@ -76,24 +80,39 @@ $ npm install node-etcd@3.0.2
 ## Basic usage
 
 ```javascript
-Etcd = require('node-etcd');
-etcd = new Etcd();
+var Etcd = require('node-etcd');
+var etcd = new Etcd();
 etcd.set("key", "value");
 etcd.get("key", console.log);
 ```
 
+Callbacks follows the default (error, result) nodejs convention:
+
+```javascript
+function callback(err, res) {
+    console.log("Error: ", err);
+    console.log("Return: ", res);
+}
+etcd.get("key", callback);
+// Error: null
+// Return: { action: 'get', node: { key: '/key', value: 'value', modifiedIndex: 4, createdIndex: 4 } }
+```
+
 ## Methods
 
-### Etcd([host = '127.0.0.1'], [port = '4001'], [ssloptions])
+### Etcd(hosts = ['127.0.0.1:4001'], [options])
 
 Create a new etcd client for a single host etcd setup
 
 ```javascript
 etcd = new Etcd();
-etcd = new Etcd('127.0.0.1', '4001');
+etcd = new Etcd("127.0.0.1:4001");
+etcd = new Etcd("http://127.0.0.1:4001");
+etcd = new Etcd("https://127.0.0.1:4001");
+etcd = new Etcd(["http://127.0.0.1:4001"]);
 ```
 
-### Etcd(hosts, [ssloptions])
+### Etcd(hosts, [options])
 
 Create a new etcd client for a clustered etcd setup. Client will connect to
 servers in random order. On failure it will try the next server. When all
@@ -103,6 +122,7 @@ retries can be controlled by adding `{ maxRetries: x }` as an option to requests
 
 ```javascript
 etcd = new Etcd(['127.0.0.1:4001','192.168.1.1:4001']);
+etcd = new Etcd(['http://127.0.0.1:4001','http://192.168.1.1:4001']);
 ```
 
 ### .set(key, value = null, [options], [callback])
@@ -396,18 +416,78 @@ you won't get any callbacks from the request after calling `.abort()`.
 
 ## SSL support
 
-Pass etcdclient a dictionary containing ssl options, check out http://nodejs.org/api/https.html#https_https_request_options_callback
+Provide `ca`, `cert`, `key` as options. Remember to use `https`-url.
 
 ```javascript
-fs = require('fs');
+var fs = require('fs');
 
-sslopts = {
-	ca: [ fs.readFileSync('ca.pem') ],
-	cert: fs.readFileSync('cert.pem'),
-	key: fs.readFileSync('key.pem')
+var options = {
+    ca:   fs.readFileSync('ca.pem'),
+    cert: fs.readFileSync('cert.pem'),
+    key:  fs.readFileSync('key.pem')
 };
 
-etcdssl = new Etcd('localhost', '4001', sslopts);
+var etcdssl = new Etcd("https://localhost:4001", options);
+```
+
+## Basic auth
+
+Pass a hash containing username and password as auth option to use basic auth.
+
+```javascript
+var auth = {
+    user: "username",
+    pass: "password"
+};
+
+var etcd = new Etcd("localhost:4001", { auth: auth });
+```
+
+## Constructor options
+
+Pass in a hash after server in the constructor to set options. Some useful constructor options include:
+
+- `timeout` - Integer request timeout in milliseconds to wait for server response.
+- `ca` - Ca certificate
+- `cert` - Client certificate
+- `key` - Client key
+- `passphrase` - Client key passphrase
+- `auth` - A hash containing `{user: "username", pass: "password"}` for basic auth.
+
+```javascript
+var etcd = new Etcd("127.0.0.1:4001", { timeout: 1000, ... });'
+```
+
+## Debugging
+
+Nodejs `console.log`/`console.dir` truncates output to a couple of levels -
+often hiding nested errors. Use `util.inspect` to show inner errors.
+
+```javascript
+etcd.get('key', function(err, val) {
+    console.log(require('util').inspect(err, true, 10));
+});
+
+//{ [Error: All servers returned error]
+//  [stack]: [Getter/Setter],
+//  [message]: 'All servers returned error',
+//  errors:
+//   [ { server: 'https://localhost:2379',
+//       httperror:
+//        { [Error: Hostname/IP doesn't match certificate's altnames: "Host: localhost. is not cert's CN: undefined"]
+//          [stack]: [Getter/Setter],
+//          [message]: 'Hostname/IP doesn\'t match certificate\'s altnames: "Host: localhost. is not cert\'s CN: undefined"',
+//          reason: 'Host: localhost. is not cert\'s CN: undefined',
+//          host: 'localhost.',
+//          cert:
+//           { subject: { C: 'USA', O: 'etcd-ca', OU: 'CA' },
+//             issuer: { C: 'USA', O: 'etcd-ca', OU: 'CA' } } },
+//       httpstatus: undefined,
+//       httpbody: undefined,
+//       response: undefined,
+//       timestamp: Sun Dec 27 2015 23:05:15 GMT+0100 (CET) },
+//     [length]: 1 ],
+//  retries: 0 }
 ```
 
 ## FAQ:

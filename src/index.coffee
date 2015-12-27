@@ -2,26 +2,17 @@ _          = require 'underscore'
 Watcher    = require './watcher'
 Client     = require './client'
 HttpsAgent = (require 'https').Agent
+URL        = require 'url-parse'
 
 # Etcd client for etcd protocol version 2
 class Etcd
 
   # Constructor, set etcd host and port.
   # For https: provide {ca, crt, key} as sslopts.
-  constructor: (host = '127.0.0.1', port = null, sslopts = null, client = null) ->
-
-    if _.isArray(host)
-      @hosts = host
-      @sslopts = port
-      @client = sslopts
-    else
-      port ?= 4001
-      @hosts = ["#{host}:#{port}"]
-      @sslopts = sslopts
-      @client = client
-
-    @client ?= new Client(@hosts, @sslopts)
-
+  # constructor: (hosts = ["http://127.0.0.1:4001"], options = {}) ->
+  constructor: (hosts = "127.0.0.1:4001", options = {}) ->
+    @hosts = @_cleanHostList hosts
+    @client = new Client(@hosts, options, null)
 
   # Set key to value
   # Usage:
@@ -230,7 +221,7 @@ class Etcd
 
   # Prepare request options
   _prepareOpts: (path, apiVersion = "/v2", value = null, allOpts = {}) ->
-    serverprotocol = if @sslopts? then "https" else "http"
+    # serverprotocol = if @sslopts? then "https" else "http"
 
     queryString = _.omit allOpts, 'maxRetries', 'synchronous'
 
@@ -238,7 +229,7 @@ class Etcd
 
     opt = {
       path: "#{apiVersion}/#{path}"
-      serverprotocol: serverprotocol
+      # serverprotocol: serverprotocol
       json: true
       qs: queryString
       clientOptions: clientOptions
@@ -254,6 +245,15 @@ class Etcd
       [{}, options]
     else
       [options, callback]
+
+  # Make sure hosts is a list, make sure all have protocol added
+  # defaults to http and remove trailing slash
+  _cleanHostList: (hosts) ->
+    hostlist = if _.isArray(hosts) then hosts else [hosts]
+    hostlist.map (host) ->
+      url = new URL(host)
+      url.set 'protocol', 'http:' if url.protocol is ''
+      url.href.replace /\/$/, "" # Trailing slash
 
 
 exports = module.exports = Etcd

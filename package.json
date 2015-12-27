@@ -31,15 +31,20 @@
     "watch": "node_modules/.bin/mocha --compilers coffee:coffee-script/register --watch"
   },
   "dependencies": {
-    "underscore": "~1.8.2",
-    "request": "~2.60.0",
-    "deasync": "~0.1.1"
+    "deasync": "^0.1.1",
+    "request": "^2.60.0",
+    "underscore": "^1.8.2",
+    "url-parse": "^1.0.5"
   },
   "devDependencies": {
-    "coffee-script": "~1.9.1",
-    "mocha": "~2.1.0",
-    "nock": "~0.59.0",
-    "should": "~5.0.1"
+    "coffee-script": "^1.9.1",
+    "mocha": "^2.1.0",
+    "nock": "^2.17.0",
+    "should": "^5.0.1",
+    "simple-mock": "^0.5.0"
   },
-  "keywords": ["etcd", "raft"]
+  "keywords": [
+    "etcd",
+    "raft"
+  ]
 }
