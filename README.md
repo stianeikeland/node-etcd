@@ -23,10 +23,9 @@ $ npm install node-etcd@3.0.2
 ## Changes
 
 - 5.0.0
-  - Supports basic auth.
-  - Breaking: Constructor changes
-  - Breaking: Must provide https url to use https
-
+  - Supports basic auth, timeout, etc. See options.
+  - **Breaking**: Constructor changes (see below)
+  - **Breaking**: Must provide https url to use https
 - 4.2.1
   - Newer deasync fixes issues with iojs 3.3.0 and nodejs 4.0.0.
 - 4.1.0
@@ -423,9 +422,9 @@ Provide `ca`, `cert`, `key` as options. Remember to use `https`-url.
 var fs = require('fs');
 
 var options = {
-	ca:   fs.readFileSync('ca.pem'),
-	cert: fs.readFileSync('cert.pem'),
-	key:  fs.readFileSync('key.pem')
+    ca:   fs.readFileSync('ca.pem'),
+    cert: fs.readFileSync('cert.pem'),
+    key:  fs.readFileSync('key.pem')
 };
 
 var etcdssl = new Etcd("https://localhost:4001", options);
@@ -439,14 +438,14 @@ Pass a hash containing username and password as auth option to use basic auth.
 var auth = {
     user: "username",
     pass: "password"
-}
+};
 
 var etcd = new Etcd("localhost:4001", { auth: auth });
 ```
 
 ## Constructor options
 
-Useful constructor options include:
+Pass in a hash after server in the constructor to set options. Some useful constructor options include:
 
 - `timeout` - Integer request timeout in milliseconds to wait for server response.
 - `ca` - Ca certificate
@@ -454,6 +453,42 @@ Useful constructor options include:
 - `key` - Client key
 - `passphrase` - Client key passphrase
 - `auth` - A hash containing `{user: "username", pass: "password"}` for basic auth.
+
+```javascript
+var etcd = new Etcd("127.0.0.1:4001", { timeout: 1000, ... });'
+```
+
+## Debugging
+
+Nodejs `console.log`/`console.dir` truncates output to a couple of levels -
+often hiding nested errors. Use `util.inspect` to show inner errors.
+
+```javascript
+etcd.get('key', function(err, val) {
+    console.log(require('util').inspect(err, true, 10));
+});
+
+//{ [Error: All servers returned error]
+//  [stack]: [Getter/Setter],
+//  [message]: 'All servers returned error',
+//  errors:
+//   [ { server: 'https://localhost:2379',
+//       httperror:
+//        { [Error: Hostname/IP doesn't match certificate's altnames: "Host: localhost. is not cert's CN: undefined"]
+//          [stack]: [Getter/Setter],
+//          [message]: 'Hostname/IP doesn\'t match certificate\'s altnames: "Host: localhost. is not cert\'s CN: undefined"',
+//          reason: 'Host: localhost. is not cert\'s CN: undefined',
+//          host: 'localhost.',
+//          cert:
+//           { subject: { C: 'USA', O: 'etcd-ca', OU: 'CA' },
+//             issuer: { C: 'USA', O: 'etcd-ca', OU: 'CA' } } },
+//       httpstatus: undefined,
+//       httpbody: undefined,
+//       response: undefined,
+//       timestamp: Sun Dec 27 2015 23:05:15 GMT+0100 (CET) },
+//     [length]: 1 ],
+//  retries: 0 }
+```
 
 ## FAQ:
 
