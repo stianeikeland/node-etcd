@@ -9,8 +9,8 @@ class Etcd
 
   # Constructor, set etcd host and port.
   # For https: provide {ca, crt, key} as sslopts.
-  # constructor: (hosts = ["http://127.0.0.1:4001"], options = {}) ->
-  constructor: (hosts = "127.0.0.1:4001", options = {}) ->
+  # constructor: (hosts = ["http://127.0.0.1:2379"], options = {}) ->
+  constructor: (hosts = "127.0.0.1:2379", options = {}) ->
     @hosts = @_cleanHostList hosts
     @client = new Client(@hosts, options, null)
 

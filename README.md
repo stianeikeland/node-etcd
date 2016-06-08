@@ -26,6 +26,7 @@ $ npm install node-etcd@3.0.2
   - Supports basic auth, timeout, etc. See options.
   - **Breaking**: Constructor changes (see below)
   - **Breaking**: Must provide https url to use https
+  - **Breaking**: Uses new default port 2379.
 - 4.2.1
   - Newer deasync fixes issues with iojs 3.3.0 and nodejs 4.0.0.
 - 4.1.0
@@ -100,16 +101,16 @@ etcd.get("key", callback);
 
 ## Methods
 
-### Etcd(hosts = ['127.0.0.1:4001'], [options])
+### Etcd(hosts = ['127.0.0.1:2379'], [options])
 
 Create a new etcd client for a single host etcd setup
 
 ```javascript
 etcd = new Etcd();
-etcd = new Etcd("127.0.0.1:4001");
-etcd = new Etcd("http://127.0.0.1:4001");
-etcd = new Etcd("https://127.0.0.1:4001");
-etcd = new Etcd(["http://127.0.0.1:4001"]);
+etcd = new Etcd("127.0.0.1:2379");
+etcd = new Etcd("http://127.0.0.1:2379");
+etcd = new Etcd("https://127.0.0.1:2379");
+etcd = new Etcd(["http://127.0.0.1:2379"]);
 ```
 
 ### Etcd(hosts, [options])
@@ -121,8 +122,8 @@ in leader election mode it will retry up to 3 times with exp backoff. Number of
 retries can be controlled by adding `{ maxRetries: x }` as an option to requests.
 
 ```javascript
-etcd = new Etcd(['127.0.0.1:4001','192.168.1.1:4001']);
-etcd = new Etcd(['http://127.0.0.1:4001','http://192.168.1.1:4001']);
+etcd = new Etcd(['127.0.0.1:2379','192.168.1.1:2379']);
+etcd = new Etcd(['http://127.0.0.1:2379','http://192.168.1.1:2379']);
 ```
 
 ### .set(key, value = null, [options], [callback])
@@ -427,7 +428,7 @@ var options = {
     key:  fs.readFileSync('key.pem')
 };
 
-var etcdssl = new Etcd("https://localhost:4001", options);
+var etcdssl = new Etcd("https://localhost:2379", options);
 ```
 
 ## Basic auth
@@ -440,7 +441,7 @@ var auth = {
     pass: "password"
 };
 
-var etcd = new Etcd("localhost:4001", { auth: auth });
+var etcd = new Etcd("localhost:2379", { auth: auth });
 ```
 
 ## Constructor options
@@ -455,7 +456,7 @@ Pass in a hash after server in the constructor to set options. Some useful const
 - `auth` - A hash containing `{user: "username", pass: "password"}` for basic auth.
 
 ```javascript
-var etcd = new Etcd("127.0.0.1:4001", { timeout: 1000, ... });'
+var etcd = new Etcd("127.0.0.1:2379", { timeout: 1000, ... });'
 ```
 
 ## Debugging

@@ -127,7 +127,7 @@ describe 'Watcher', ->
 describe 'Watcher resync', ->
 
   getNock = ->
-    nock 'http://127.0.0.1:4001'
+    nock 'http://127.0.0.1:2379'
 
   it 'should resync if index is outdated and cleared', (done) ->
     getNock()
