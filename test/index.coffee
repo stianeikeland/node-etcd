@@ -10,7 +10,7 @@ process.env.RUNNING_UNIT_TESTS = true
 
 # Helpers
 
-getNock = (host = 'http://127.0.0.1:4001') ->
+getNock = (host = 'http://127.0.0.1:2379') ->
   nock host
 
 
@@ -38,12 +38,12 @@ describe 'Utility', ->
 
 describe 'Connecting', ->
 
-  mock = (host = 'http://127.0.0.1:4001/') ->
+  mock = (host = 'http://127.0.0.1:2379/') ->
     nock(host)
       .get('/v2/keys/key')
       .reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
 
-  it 'should support empty constructor (localhost:4001)', (done) ->
+  it 'should support empty constructor (localhost:2379)', (done) ->
     etcd = new Etcd
     m = mock()
     etcd.get 'key', (err, val) ->
@@ -92,9 +92,9 @@ describe 'Basic auth', ->
     auth =
       user: "username"
       pass: "password"
-    etcd = new Etcd "localhost:4001", { auth: auth }
+    etcd = new Etcd "localhost:2379", { auth: auth }
 
-    m = nock("http://localhost:4001")
+    m = nock("http://localhost:2379")
       .get("/v2/keys/key")
       .basicAuth(
         user: "username",
@@ -177,7 +177,7 @@ describe 'Basic functions', ->
         .put('/v2/keys/key', { value: "value" })
         .reply(200, '{"action":"SET","key":"/key","prevValue":"value","value":"value","index":1}')
 
-      (nock 'http://127.0.0.1:4001')
+      (nock 'http://127.0.0.1:2379')
         .put('/v2/keys/key', { value: "value" })
         .reply(307, "", { location: "http://127.0.0.1:4002/v2/keys/key" })
 
@@ -365,7 +365,7 @@ describe 'Cancellation Token', ->
       .log(console.log)
       .get('/v2/keys/key')
       .reply(200, '{"action":"GET","key":"/key","value":"value","index":1}')
-    etcd = new Etcd '127.0.0.1', 4001
+    etcd = new Etcd '127.0.0.1', 2379
 
     # This sucks a bit.. are there any better way of checking that a callback
     # does not happen?
@@ -380,8 +380,8 @@ describe 'Multiserver/Cluster support', ->
     nock.cleanAll()
 
   it 'should accept list of servers in constructor', ->
-    etcd = new Etcd ['localhost:4001', 'localhost:4002']
-    etcd.getHosts().should.eql ['http://localhost:4001', 'http://localhost:4002']
+    etcd = new Etcd ['localhost:2379', 'localhost:4002']
+    etcd.getHosts().should.eql ['http://localhost:2379', 'http://localhost:4002']
 
   it 'should try next server in list on http error', (done) ->
     path = '/v2/keys/foo'
