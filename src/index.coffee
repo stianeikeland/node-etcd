@@ -240,7 +240,7 @@ class Etcd
 
 
   # Swap callback and options if no options was given.
-  _argParser: (options, callback) ->
+  _argParser: (options = {}, callback) ->
     if typeof options is 'function'
       [{}, options]
     else

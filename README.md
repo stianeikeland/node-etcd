@@ -22,6 +22,10 @@ $ npm install node-etcd@3.0.2
 
 ## Changes
 
+- 5.0.3
+  - Fix bug #56 (exception when calling mkdir with no options or callback)
+- 5.0.2
+  - Update deasync dependency, possible fix for #47.
 - 5.0.1
   - Was forced to publish 5.0.0 as 5.0.1 because of previous beta tag.
 - 5.0.0

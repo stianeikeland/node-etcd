@@ -237,6 +237,17 @@ describe 'Basic functions', ->
         val.node.should.containEql {dir: true}
         done()
 
+    it 'should work when no options or callback given - bug #56', (done) ->
+      replybody = '{"action":"create", "node":{"key":"/key","dir":true,"modifiedIndex":1,"createdIndex":1}}'
+      getNock()
+        .put('/v2/keys/key?dir=true')
+        .reply(200, (uri, req, cb) ->
+          cb(replybody)
+          done()
+        )
+      etcd.mkdir 'key'
+
+
   describe '#mkdirSync()', ->
     it 'should synchronously create directory', (done) ->
       getNock()
