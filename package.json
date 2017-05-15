@@ -31,7 +31,7 @@
     "watch": "node_modules/.bin/mocha --compilers coffee:coffee-script/register --watch"
   },
   "dependencies": {
-    "deasync": "0.1.7",
+    "deasync": "0.1.9",
     "request": "^2.81.0",
     "underscore": "1.8.2",
     "url-parse": "1.0.5"
