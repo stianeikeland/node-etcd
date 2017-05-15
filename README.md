@@ -22,6 +22,10 @@ $ npm install node-etcd@3.0.2
 
 ## Changes
 
+- 5.1.0
+  - Upgrade deasync dep (caused build problems on newer node) #67 / @jefflembeck
+  - Upgrade request dep (security vulnerability) #71 / @esatterwhite
+  - Sync functions no longer mutate input opts.
 - 5.0.3
   - Fix bug #56 (exception when calling mkdir with no options or callback)
 - 5.0.2
