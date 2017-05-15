@@ -28,8 +28,7 @@ class Etcd
   #   .set("key", "value")
   #   .set("key", "value", {prevValue: "oldvalue"})
   setSync: (key, value, options = {}) ->
-    options.synchronous = true
-    this.set key, value, options
+    this.set key, value, @_synchronousOpts(options)
 
   # Get value of key
   # Usage:
@@ -45,8 +44,7 @@ class Etcd
   #   .get("key")
   #   .get("key", {recursive: true})
   getSync: (key, options = {}) ->
-    options.synchronous = true
-    this.get key, options
+    this.get key, @_synchronousOpts(options)
 
   # Create a key (atomic in order)
   # Usage:
@@ -77,8 +75,7 @@ class Etcd
   #   .del("key")
   #   .del("key", {recursive: true}))
   delSync: (key, options = {}) ->
-    options.synchronous = true
-    this.del key, options
+    this.del key, @_synchronousOpts(options)
 
   # Make a directory
   # Usage:
@@ -94,8 +91,7 @@ class Etcd
   #   .mkdir("dir")
   #   .mkdir("dir", options)
   mkdirSync: (dir, options = {}) ->
-    options.synchronous = true
-    this.mkdir dir, options
+    this.mkdir dir, @_synchronousOpts(options)
 
   # Remove a directory
   # Usage:
@@ -111,8 +107,7 @@ class Etcd
   #   .rmdir("dir")
   #   .rmdir("dir", {recursive: true})
   rmdirSync: (dir, options = {}) ->
-    options.synchronous = true
-    this.rmdir dir, options
+    this.rmdir dir, @_synchronousOpts(options)
 
   # Compare and swap value if unchanged
   # Usage:
@@ -218,6 +213,8 @@ class Etcd
   _stripSlashPrefix: (key) ->
     key.replace /^\//, ''
 
+  _synchronousOpts: (options) ->
+    _.extend {}, options, { synchronous: true }
 
   # Prepare request options
   _prepareOpts: (path, apiVersion = "/v2", value = null, allOpts = {}) ->
