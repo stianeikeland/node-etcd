@@ -47,7 +47,8 @@
   "scripts": {
     "build": "node_modules/.bin/coffee --bare --compile --output lib/ src/*.coffee",
     "prepublish": "node_modules/.bin/coffee --bare --compile --output lib/ src/*.coffee",
-    "test": "node_modules/.bin/nyc node_modules/.bin/mocha --require coffee-coverage/register-istanbul --compilers coffee:coffee-script/register test/",
+    "test": "node_modules/.bin/mocha --require coffee-coverage/register-istanbul --compilers coffee:coffee-script/register test/",
+    "coverage": "node_modules/.bin/nyc npm test",
     "watch": "node_modules/.bin/mocha --compilers coffee:coffee-script/register --watch"
   },
   "nyc": {
