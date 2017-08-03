@@ -1,6 +1,6 @@
 {
   "name": "node-etcd",
-  "version": "5.1.0",
+  "version": "6.0.0",
   "description": "etcd library for node.js (etcd v2 api)",
   "repository": {
     "type": "git",
@@ -47,9 +47,14 @@
   "scripts": {
     "build": "node_modules/.bin/coffee --bare --compile --output lib/ src/*.coffee",
     "prepublish": "node_modules/.bin/coffee --bare --compile --output lib/ src/*.coffee",
-    "postpublish": "rm -rf lib",
-    "test": "node_modules/.bin/mocha --compilers coffee:coffee-script/register test/",
+    "test": "node_modules/.bin/nyc node_modules/.bin/mocha --require coffee-coverage/register-istanbul --compilers coffee:coffee-script/register test/",
     "watch": "node_modules/.bin/mocha --compilers coffee:coffee-script/register --watch"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "include": [
+      "src/**/*.js"
+    ]
   },
   "dependencies": {
     "deasync": "0.1.9",
@@ -58,9 +63,11 @@
     "url-parse": "1.0.5"
   },
   "devDependencies": {
+    "coffee-coverage": "^2.0.1",
     "coffee-script": "1.9.1",
     "mocha": "2.1.0",
     "nock": "2.17.0",
+    "nyc": "^11.1.0",
     "should": "5.0.1",
     "simple-mock": "0.5.0"
   },

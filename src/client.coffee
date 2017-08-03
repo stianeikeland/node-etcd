@@ -119,6 +119,7 @@ class Client
 
   _waitTime: (retries) ->
     return 1 if process.env.RUNNING_UNIT_TESTS is 'true'
+    ### !pragma no-coverage-next ###
     return 100 * Math.pow 16, retries
 
 

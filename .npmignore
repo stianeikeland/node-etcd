@@ -4,3 +4,6 @@ npm-debug.log
 .gitignore
 .travis.yml
 temp/
+.nyc_output
+coverage
+lib

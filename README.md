@@ -1,17 +1,23 @@
 # node-etcd
 
-A nodejs library for [etcd](http://github.com/coreos/etcd), written in coffee-script.
+A nodejs library for [ETCD v2](https://coreos.com/etcd/docs/latest/v2/api.html), written in coffee-script.
 
-[![NPM](https://nodei.co/npm/node-etcd.png?downloads=true&stars=true)](https://nodei.co/npm/node-etcd/)
+[![Travis](https://img.shields.io/travis/stianeikeland/node-etcd.svg)](https://travis-ci.org/stianeikeland/node-etcd)
 
-Travis-CI: [![Build Status](https://travis-ci.org/stianeikeland/node-etcd.png?branch=master)](https://travis-ci.org/stianeikeland/node-etcd)
+[![npm](https://img.shields.io/npm/v/node-etcd.svg)](https://www.npmjs.com/package/node-etcd)
 
 ## Install
 
-For nodejs >= 0.10 and iojs:
+For nodes >= 4.x:
 
 ```
 $ npm install node-etcd
+```
+
+For 0.10.x <= nodejs <= 4.x and iojs:
+
+```
+$ npm install node-etcd@5.1.0
 ```
 
 For nodejs == 0.8:
@@ -21,6 +27,10 @@ $ npm install node-etcd@3.0.2
 ```
 
 ## Changes
+- 6.0.0
+  - Migrate from underscore to lodash for performance / @derektbrown
+  - Update deasync call for newer node versions / @derektbrown
+  - Add istanbul coverage reporting / @derektbrown
 
 - 5.1.0
   - Upgrade deasync dep (caused build problems on newer node) #67 / @jefflembeck
