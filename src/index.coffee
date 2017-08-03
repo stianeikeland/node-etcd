@@ -1,4 +1,4 @@
-_          = require 'underscore'
+_          = require 'lodash'
 Watcher    = require './watcher'
 Client     = require './client'
 HttpsAgent = (require 'https').Agent

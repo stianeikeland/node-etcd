@@ -1,7 +1,11 @@
 {
   "name": "node-etcd",
-  "version": "5.1.0",
+  "version": "6.0.0",
   "description": "etcd library for node.js (etcd v2 api)",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/stianeikeland/node-etcd.git"
+  },
   "licenses": [
     {
       "type": "BSD 3-Clause",
@@ -15,10 +19,27 @@
       "web": "http://eikeland.se/"
     }
   ],
-  "repository": {
-    "type": "git",
-    "url": "http://github.com/stianeikeland/node-etcd.git"
-  },
+  "contribuitors": [
+    {
+      "name": "Stian Eikeland",
+      "url": "https://github.com/stianeikeland"
+    },
+    {
+      "name": "Derek Brown",
+      "email": "mail@derektbrown.com",
+      "url": "derektbrown.com"
+    },
+    {
+      "name": "Jon Morehouse",
+      "email": "morehousej09@gmail.com",
+      "url": "https://github.com/jonmorehouse"
+    },
+    {
+      "name": "Bryan Rockwood",
+      "email": "bryan.rockwood@c2fo.com",
+      "url": "https://github.com/brockwood"
+    }
+  ],
   "engines": {
     "node": ">= 0.10.0"
   },
@@ -26,22 +47,30 @@
   "scripts": {
     "build": "node_modules/.bin/coffee --bare --compile --output lib/ src/*.coffee",
     "prepublish": "node_modules/.bin/coffee --bare --compile --output lib/ src/*.coffee",
-    "postpublish": "rm -rf lib",
-    "test": "node_modules/.bin/mocha --compilers coffee:coffee-script/register test/",
+    "test": "node_modules/.bin/mocha --require coffee-coverage/register-istanbul --compilers coffee:coffee-script/register test/",
+    "coverage": "node_modules/.bin/nyc npm test",
     "watch": "node_modules/.bin/mocha --compilers coffee:coffee-script/register --watch"
   },
+  "nyc": {
+    "check-coverage": true,
+    "include": [
+      "src/**/*.js"
+    ]
+  },
   "dependencies": {
-    "deasync": "0.1.9",
-    "request": "^2.81.0",
-    "underscore": "1.8.2",
+    "deasync": "0.1.10",
+    "lodash": "4.17.4",
+    "request": "2.81.0",
     "url-parse": "1.0.5"
   },
   "devDependencies": {
-    "coffee-script": "1.9.1",
-    "mocha": "2.1.0",
-    "nock": "2.17.0",
-    "should": "5.0.1",
-    "simple-mock": "0.5.0"
+    "coffee-coverage": "2.0.1",
+    "coffee-script": "1.12.7",
+    "mocha": "3.5.0",
+    "nock": "9.0.14",
+    "nyc": "11.1.0",
+    "should": "11.2.1",
+    "simple-mock": "0.8.0"
   },
   "keywords": [
     "etcd",

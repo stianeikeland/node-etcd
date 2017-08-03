@@ -1,6 +1,6 @@
 request     = require 'request'
 deasync     = require 'deasync'
-_           = require 'underscore'
+_          = require 'lodash'
 
 
 # Default options for request library
@@ -80,7 +80,7 @@ class Client
           timestamp: new Date()
 
         # Recurse:
-        return @_multiserverHelper _.rest(servers), options, token, callback
+        return @_multiserverHelper _.drop(servers), options, token, callback
 
       # Deliver response
       @_handleResponse err, resp, body, callback
@@ -98,7 +98,7 @@ class Client
 
     if options.synchronous is true and options.syncdone is undefined
       options.syncdone = false
-      deasync.runLoopOnce() while !options.syncdone
+      deasync.loopWhile(() => return !options.syncdone);
       delete options.syncdone
       return @syncmsg
     else
@@ -119,6 +119,7 @@ class Client
 
   _waitTime: (retries) ->
     return 1 if process.env.RUNNING_UNIT_TESTS is 'true'
+    ### !pragma no-coverage-next ###
     return 100 * Math.pow 16, retries
 
 
