@@ -2,6 +2,10 @@
   "name": "node-etcd",
   "version": "5.1.0",
   "description": "etcd library for node.js (etcd v2 api)",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/stianeikeland/node-etcd.git"
+  },
   "licenses": [
     {
       "type": "BSD 3-Clause",
@@ -15,10 +19,27 @@
       "web": "http://eikeland.se/"
     }
   ],
-  "repository": {
-    "type": "git",
-    "url": "http://github.com/stianeikeland/node-etcd.git"
-  },
+  "contribuitors": [
+    {
+      "name": "Stian Eikeland",
+      "url": "https://github.com/stianeikeland"
+    },
+    {
+      "name": "Derek Brown",
+      "email": "mail@derektbrown.com",
+      "url": "derektbrown.com"
+    },
+    {
+      "name": "Jon Morehouse",
+      "email": "morehousej09@gmail.com",
+      "url": "https://github.com/jonmorehouse"
+    },
+    {
+      "name": "Bryan Rockwood",
+      "email": "bryan.rockwood@c2fo.com",
+      "url": "https://github.com/brockwood"
+    }
+  ],
   "engines": {
     "node": ">= 0.10.0"
   },
@@ -32,8 +53,8 @@
   },
   "dependencies": {
     "deasync": "0.1.9",
+    "lodash": "^4.17.4",
     "request": "^2.81.0",
-    "underscore": "1.8.2",
     "url-parse": "1.0.5"
   },
   "devDependencies": {
