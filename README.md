@@ -29,6 +29,7 @@ $ npm install node-etcd@3.0.2
 ## Changes
 - 6.0.0
   - Migrate from underscore to lodash for performance / @derektbrown
+  - Updated package versions / @derektbrown
   - Update deasync call for newer node versions / @derektbrown
   - Add istanbul coverage reporting / @derektbrown
 
