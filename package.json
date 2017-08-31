@@ -1,6 +1,6 @@
 {
   "name": "node-etcd",
-  "version": "6.0.0",
+  "version": "6.0.2",
   "description": "etcd library for node.js (etcd v2 api)",
   "repository": {
     "type": "git",
