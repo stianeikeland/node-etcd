@@ -248,8 +248,8 @@ class Etcd
   _cleanHostList: (hosts) ->
     hostlist = if _.isArray(hosts) then hosts else [hosts]
     hostlist.map (host) ->
+      host = 'http://' + host if host.indexOf('http') is -1
       url = new URL(host)
-      url.set 'protocol', 'http:' if url.protocol is ''
       url.href.replace /\/$/, "" # Trailing slash
 
 
