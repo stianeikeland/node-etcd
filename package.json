@@ -1,6 +1,6 @@
 {
   "name": "node-etcd",
-  "version": "6.0.2",
+  "version": "7.0.0",
   "description": "etcd library for node.js (etcd v2 api)",
   "repository": {
     "type": "git",
@@ -41,7 +41,7 @@
     }
   ],
   "engines": {
-    "node": ">= 0.10.0"
+    "node": ">= 6.0.0"
   },
   "main": "lib/index.js",
   "scripts": {
@@ -58,17 +58,17 @@
     ]
   },
   "dependencies": {
-    "deasync": "0.1.10",
-    "lodash": "4.17.4",
-    "request": "2.81.0",
-    "url-parse": "1.0.5"
+    "deasync": "^0.1.13",
+    "lodash": "^4.17.10",
+    "request": "^2.87.0",
+    "url-parse": "^1.4.3"
   },
   "devDependencies": {
     "coffee-coverage": "2.0.1",
     "coffee-script": "1.12.7",
-    "mocha": "3.5.0",
-    "nock": "9.0.14",
-    "nyc": "11.1.0",
+    "mocha": "^4.0.0",
+    "nock": "^9.4.4",
+    "nyc": "^12.0.0",
     "should": "11.2.1",
     "simple-mock": "0.8.0"
   },

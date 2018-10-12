@@ -8,10 +8,16 @@ A nodejs library for [ETCD v2](https://coreos.com/etcd/docs/latest/v2/api.html),
 
 ## Install
 
-For nodes >= 4.x:
+For nodes >= 6.x:
 
 ```
 $ npm install node-etcd
+```
+
+For nodes 4.x <= node < 6.x:
+
+```
+$ npm install node-etcd@6
 ```
 
 For 0.10.x <= nodejs <= 4.x and iojs:
@@ -27,6 +33,9 @@ $ npm install node-etcd@3.0.2
 ```
 
 ## Changes
+- 7.0.0
+  - Fixing vulnerabilities
+  - Drop support for nodejs version 4 &4
 - 6.0.0
   - Migrate from underscore to lodash for performance / @derektbrown
   - Updated package versions / @derektbrown
